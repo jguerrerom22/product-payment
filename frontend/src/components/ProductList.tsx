@@ -2,8 +2,9 @@ import React, { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchProducts, type Product } from '../store/products/productSlice';
 import { type AppDispatch, type RootState } from '../store';
-import styled from 'styled-components';
+import styled, { keyframes } from 'styled-components';
 import { formatCurrency } from '../utils/validation';
+import { SkeletonImage, SkeletonTitle, SkeletonText, SkeletonButton } from './Skeleton';
 
 const Container = styled.div`
   padding: 40px;
@@ -44,11 +45,65 @@ const Card = styled.div`
   }
 `;
 
-const Image = styled.img`
+const ImageContainer = styled.div`
   width: 100%;
   height: 200px;
-  object-fit: cover;
+  position: relative;
+  background-color: #f0f0f0;
+  overflow: hidden;
 `;
+
+const fadeIn = keyframes`
+  from { opacity: 0; }
+  to { opacity: 1; }
+`;
+
+const StyledImage = styled.img<{ $loaded: boolean }>`
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  opacity: ${props => props.$loaded ? 1 : 0};
+  transition: opacity 0.4s ease-in-out;
+  animation: ${props => props.$loaded ? fadeIn : 'none'} 0.4s ease-in-out;
+`;
+
+const ImageError = styled.div`
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #f5f5f5;
+  color: #999;
+  font-size: 0.8rem;
+  text-align: center;
+  padding: 20px;
+`;
+
+const OptimizedImage: React.FC<{ src: string; alt: string }> = ({ src, alt }) => {
+  const [loaded, setLoaded] = React.useState(false);
+  const [error, setError] = React.useState(false);
+
+  return (
+    <ImageContainer>
+      {!loaded && !error && <SkeletonImage style={{ position: 'absolute', top: 0, left: 0 }} />}
+      {error ? (
+        <ImageError>Image not available</ImageError>
+      ) : (
+        <StyledImage 
+          src={src} 
+          alt={alt} 
+          $loaded={loaded}
+          onLoad={() => setLoaded(true)}
+          onError={() => setError(true)}
+          loading="lazy"
+          decoding="async"
+        />
+      )}
+    </ImageContainer>
+  );
+};
 
 const Content = styled.div`
   padding: 16px;
@@ -119,7 +174,27 @@ const ProductList: React.FC<ProductListProps> = ({ onSelectProduct }) => {
     }
   }, [status, dispatch]);
 
-  if (status === 'loading') return <div>Loading products...</div>;
+  if (status === 'loading') {
+    return (
+      <Container>
+        <Header>Store Products</Header>
+        <Grid>
+          {[...Array(6)].map((_, i) => (
+            <Card key={i}>
+              <SkeletonImage />
+              <Content>
+                <SkeletonTitle />
+                <SkeletonText />
+                <SkeletonText />
+                <SkeletonButton />
+              </Content>
+            </Card>
+          ))}
+        </Grid>
+      </Container>
+    );
+  }
+
   if (status === 'failed') return <div style={{ color: 'red' }}>Error: {error}</div>;
 
   return (
@@ -128,7 +203,7 @@ const ProductList: React.FC<ProductListProps> = ({ onSelectProduct }) => {
       <Grid>
         {items.map((product) => (
           <Card key={product.id}>
-            <Image src={product.img_url} alt={product.name} />
+            <OptimizedImage src={product.img_url} alt={product.name} />
             <Content>
               <Title>{product.name}</Title>
               <Price>{formatCurrency(Number(product.price))}</Price>
