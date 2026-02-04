@@ -1,12 +1,11 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { AppController } from './app.controller';
-import { AppService } from './app.service';
 import { Product } from './modules/product/domain/product.entity';
-import { Transaction } from './modules/transaction/domain/transaction.entity';
 import { ProductModule } from './modules/product/product.module';
+import { Transaction } from './modules/transaction/domain/transaction.entity';
 import { TransactionModule } from './modules/transaction/transaction.module';
+import { AppController } from './app.controller';
 
 @Module({
   imports: [
@@ -31,6 +30,5 @@ import { TransactionModule } from './modules/transaction/transaction.module';
     TransactionModule,
   ],
   controllers: [AppController],
-  providers: [AppService],
 })
 export class AppModule {}

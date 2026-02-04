@@ -15,31 +15,31 @@ const AppContainer = styled.div`
 
 const App = () => {
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(() => {
-    const saved = localStorage.getItem('wompi_selected_product');
+    const saved = localStorage.getItem('payment_gateway_selected_product');
     return saved ? JSON.parse(saved) : null;
   });
   
-  const { status } = useSelector((state: RootState) => state.transaction);
+  const { status, transactionResult } = useSelector((state: RootState) => state.transaction);
 
   useEffect(() => {
     if (selectedProduct) {
-      localStorage.setItem('wompi_selected_product', JSON.stringify(selectedProduct));
+      localStorage.setItem('payment_gateway_selected_product', JSON.stringify(selectedProduct));
     } else {
       // Only remove if it's explicitly null (not just during initial load if it was already null)
-      localStorage.removeItem('wompi_selected_product');
-      localStorage.removeItem('wompi_payment_step');
+      localStorage.removeItem('payment_gateway_selected_product');
+      localStorage.removeItem('payment_gateway_payment_step');
     }
   }, [selectedProduct]);
 
   useEffect(() => {
     if (status === 'succeeded') {
-      localStorage.removeItem('wompi_selected_product');
-      localStorage.removeItem('wompi_payment_step');
-      localStorage.removeItem('wompi_payment_form');
+      localStorage.removeItem('payment_gateway_selected_product');
+      localStorage.removeItem('payment_gateway_payment_step');
+      localStorage.removeItem('payment_gateway_payment_form');
     }
   }, [status]);
 
-  const showResult = status === 'succeeded' || status === 'failed';
+  const showResult = (status === 'succeeded' || status === 'failed') || (status === 'loading' && !!transactionResult);
 
   if (showResult) {
     return (

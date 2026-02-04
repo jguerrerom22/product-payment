@@ -2,9 +2,9 @@ import React, { useState } from 'react';
 import styled from 'styled-components';
 import { type Product } from '../store/products/productSlice';
 import { luhnCheck, getCardType, formatCurrency } from '../utils/validation';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { createTransaction } from '../store/transaction/transactionSlice';
-import { type AppDispatch } from '../store';
+import { type AppDispatch, type RootState } from '../store';
 import Cards from 'react-credit-cards-2';
 import 'react-credit-cards-2/dist/es/styles-compiled.css';
 import { IMaskInput } from 'react-imask';
@@ -218,6 +218,7 @@ interface PaymentFormData {
   cardHolder: string;
   expiry: string;
   cvv: string;
+  email: string;
   address: string;
   city: string;
   phone: string;
@@ -225,21 +226,23 @@ interface PaymentFormData {
 
 const PaymentModal: React.FC<PaymentModalProps> = ({ product, onClose }) => {
   const dispatch = useDispatch<AppDispatch>();
+  const { status: requestStatus } = useSelector((state: RootState) => state.transaction);
   const [step, setStep] = useState<'form' | 'summary'>(() => {
-    return (localStorage.getItem('wompi_payment_step') as 'form' | 'summary') || 'form';
+    return (localStorage.getItem('payment_gateway_payment_step') as 'form' | 'summary') || 'form';
   });
 
   React.useEffect(() => {
-    localStorage.setItem('wompi_payment_step', step);
+    localStorage.setItem('payment_gateway_payment_step', step);
   }, [step]);
   
   const [formData, setFormData] = useState<PaymentFormData>(() => {
-    const savedData = localStorage.getItem('wompi_payment_form');
+    const savedData = localStorage.getItem('payment_gateway_payment_form');
     const baseState: PaymentFormData = {
       cardNumber: '',
       cardHolder: '',
       expiry: '',
       cvv: '',
+      email: '',
       address: '',
       city: '',
       phone: ''
@@ -258,16 +261,16 @@ const PaymentModal: React.FC<PaymentModalProps> = ({ product, onClose }) => {
   // Save to localStorage on change
   React.useEffect(() => {
     const { cvv, ...dataToSave } = formData;
-    localStorage.setItem('wompi_payment_form', JSON.stringify(dataToSave));
+    localStorage.setItem('payment_gateway_payment_form', JSON.stringify(dataToSave));
   }, [formData]);
 
   const [focus, setFocus] = useState<string>('');
   const [errors, setErrors] = useState<Record<string, string>>({});
 
   const cardType = getCardType(formData.cardNumber.replace(/\s/g, ''));
-  const BASE_FEE = 5.00;
-  const DELIVERY_FEE = 10.00;
-  const TOTAL = product.price + BASE_FEE + DELIVERY_FEE;
+  const BASE_FEE = 5000;
+  const DELIVERY_FEE = 10000;
+  const TOTAL = Number(product.price) + BASE_FEE + DELIVERY_FEE;
 
   const handleInputFocus = (e: React.FocusEvent<HTMLInputElement>) => {
     setFocus(e.target.name);
@@ -294,8 +297,14 @@ const PaymentModal: React.FC<PaymentModalProps> = ({ product, onClose }) => {
     if (!luhnCheck(cleanCard)) newErrors.cardNumber = 'Invalid Card Number';
     if (cardType === 'UNKNOWN') newErrors.cardNumber = 'Unsupported Card Type (Visa/Mastercard only)';
     if (!formData.cardHolder) newErrors.cardHolder = 'Required';
+    if (formData.cardHolder.length < 5) newErrors.cardHolder = 'Cardholder name must be at least 5 characters long';
     if (!formData.expiry) newErrors.expiry = 'Required';
     if (!formData.cvv) newErrors.cvv = 'Required';
+    if (!formData.email) {
+      newErrors.email = 'Required';
+    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
+      newErrors.email = 'Invalid email';
+    }
     if (!formData.address) newErrors.address = 'Required';
     if (!formData.city) newErrors.city = 'Required';
     
@@ -311,21 +320,27 @@ const PaymentModal: React.FC<PaymentModalProps> = ({ product, onClose }) => {
   };
 
   const handlePayment = () => {
+    const [expMonth, expYear] = formData.expiry.split('/');
     dispatch(createTransaction({
       productId: product.id,
       amount: TOTAL,
+      customerEmail: formData.email,
       deliveryInfo: {
         address: formData.address,
         city: formData.city,
         phone: formData.phone
       },
       paymentInfo: {
-        token: 'tok_test_' + formData.cardNumber.replace(/\s/g, '').slice(-4),
+        number: formData.cardNumber.replace(/\s/g, ''),
+        cvc: formData.cvv,
+        exp_month: expMonth,
+        exp_year: expYear,
+        card_holder: formData.cardHolder,
         installments: 1
       }
     }));
     // Clear persisted data on successful submission
-    localStorage.removeItem('wompi_payment_form');
+    localStorage.removeItem('payment_gateway_payment_form');
   };
 
   return (
@@ -370,6 +385,7 @@ const PaymentModal: React.FC<PaymentModalProps> = ({ product, onClose }) => {
                   onChange={handleChange}
                   onFocus={handleInputFocus}
                   placeholder="JOHN DOE"
+                  min={5}
                 />
                 {errors.cardHolder && <ErrorText>{errors.cardHolder}</ErrorText>}
               </FormGroup>
@@ -402,6 +418,19 @@ const PaymentModal: React.FC<PaymentModalProps> = ({ product, onClose }) => {
                   {errors.cvv && <ErrorText>{errors.cvv}</ErrorText>}
                 </FormGroup>
               </Row>
+
+              <FormGroup>
+                <Label>Email</Label>
+                <Input 
+                  name="email" 
+                  type="email"
+                  value={formData.email} 
+                  onChange={handleChange}
+                  onFocus={handleInputFocus}
+                  placeholder="john@example.com"
+                />
+                {errors.email && <ErrorText>{errors.email}</ErrorText>}
+              </FormGroup>
 
               <h3 style={{ margin: '16px 0 8px' }}>Delivery Info</h3>
               
@@ -467,8 +496,10 @@ const PaymentModal: React.FC<PaymentModalProps> = ({ product, onClose }) => {
               </SummaryRow>
             </div>
             <div style={{ display: 'flex', gap: '16px' }}>
-               <Button type="button" onClick={() => setStep('form')} style={{ background: '#757575'}}>Back</Button>
-               <Button onClick={handlePayment} style={{ flex: 1 }}>Pay {formatCurrency(TOTAL)}</Button>
+               <Button type="button" onClick={() => setStep('form')} style={{ background: '#757575'}} disabled={requestStatus === 'loading'}>Back</Button>
+               <Button onClick={handlePayment} style={{ flex: 1 }} disabled={requestStatus === 'loading'}>
+                 {requestStatus === 'loading' ? 'Processing...' : `Pay ${formatCurrency(TOTAL)}`}
+               </Button>
             </div>
           </>
         )}

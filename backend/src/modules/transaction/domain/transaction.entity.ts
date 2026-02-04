@@ -39,7 +39,7 @@ export class Transaction {
   payment_info: Record<string, any>;
 
   @Column({ nullable: true })
-  wompi_id: string;
+  payment_gateway_id: string;
 
   @CreateDateColumn()
   created_at: Date;

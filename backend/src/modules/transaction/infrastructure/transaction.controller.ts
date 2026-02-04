@@ -1,5 +1,6 @@
 import { Body, Controller, Post, Get, Param, ParseUUIDPipe, NotFoundException } from '@nestjs/common';
 import { CreateTransactionUseCase, CreateTransactionDto } from '../application/create-transaction.use-case';
+import { CheckTransactionStatusUseCase } from '../application/check-transaction-status.use-case';
 import { Transaction } from '../domain/transaction.entity';
 import { TransactionRepository, TRANSACTION_REPOSITORY } from '../domain/transaction.repository';
 import { Inject } from '@nestjs/common';
@@ -8,6 +9,7 @@ import { Inject } from '@nestjs/common';
 export class TransactionController {
   constructor(
     private readonly createTransactionUseCase: CreateTransactionUseCase,
+    private readonly checkTransactionStatusUseCase: CheckTransactionStatusUseCase,
     @Inject(TRANSACTION_REPOSITORY)
     private readonly transactionRepository: TransactionRepository,
   ) {}
@@ -24,5 +26,10 @@ export class TransactionController {
        throw new NotFoundException(`Transaction with ID ${id} not found`);
     }
     return transaction;
+  }
+
+  @Get(':id/status')
+  async getStatus(@Param('id', ParseUUIDPipe) id: string): Promise<Transaction> {
+    return this.checkTransactionStatusUseCase.execute(id);
   }
 }

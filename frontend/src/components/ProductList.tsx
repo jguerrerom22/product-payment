@@ -3,6 +3,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { fetchProducts, type Product } from '../store/products/productSlice';
 import { type AppDispatch, type RootState } from '../store';
 import styled from 'styled-components';
+import { formatCurrency } from '../utils/validation';
 
 const Container = styled.div`
   padding: 40px;
@@ -130,7 +131,7 @@ const ProductList: React.FC<ProductListProps> = ({ onSelectProduct }) => {
             <Image src={product.img_url} alt={product.name} />
             <Content>
               <Title>{product.name}</Title>
-              <Price>${product.price}</Price>
+              <Price>{formatCurrency(Number(product.price))}</Price>
               <Stock $low={product.stock < 5}>{product.stock} units available</Stock>
               <Description>{product.description}</Description>
               <Button 
