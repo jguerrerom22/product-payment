@@ -19,7 +19,7 @@ export class TypeOrmTransactionRepository implements TransactionRepository {
     return this.repository.findOne({ where: { id }, relations: ['product'] });
   }
 
-  async findByWompiId(wompiId: string): Promise<Transaction | null> {
-    return this.repository.findOne({ where: { wompi_id: wompiId } });
+  async findByPaymentGatewayId(paymentGatewayId: string): Promise<Transaction | null> {
+    return this.repository.findOne({ where: { payment_gateway_id: paymentGatewayId } });
   }
 }

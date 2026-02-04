@@ -1,6 +1,6 @@
-# Wompi Payment App
+# Product Payment App
 
-This project implements a Product Payment Application using Wompi integration. It consists of a **NestJS Backend** (Hexagonal Architecture) and a **React Frontend** (Redux + Vite).
+This project implements a Product Payment Application using Payment Gateway integration. It consists of a **NestJS Backend** (Hexagonal Architecture) and a **React Frontend** (Redux + Vite).
 
 ## Architecture
 
@@ -9,6 +9,7 @@ This project implements a Product Payment Application using Wompi integration. I
 - **Architecture**: Hexagonal (Ports & Adapters)
 - **Database**: PostgreSQL with TypeORM
 - **Pattern**: Railway Oriented Programming principles in Use Cases.
+- **Payment Gateway**: Payment Gateway integration.
 - **Modules**:
   - `Product`: Manages stock and listings.
   - `Transaction`: Manages payment inputs and lifecycle.
@@ -36,7 +37,7 @@ This project implements a Product Payment Application using Wompi integration. I
    ```
 3. Configure Environment:
    - Copy `.env.example` to `.env`
-   - Update DB credentials and Wompi keys.
+   - Update DB credentials and Payment gateway keys.
 4. Run Development Server:
    ```bash
    npm run start:dev

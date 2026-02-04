@@ -20,10 +20,26 @@ export const createTransaction = createAsyncThunk(
   async (payload: {
     productId: string;
     amount: number;
+    customerEmail: string;
     deliveryInfo: any;
-    paymentInfo: any;
+    paymentInfo: {
+      number: string;
+      cvc: string;
+      exp_month: string;
+      exp_year: string;
+      card_holder: string;
+      installments: number;
+    };
   }) => {
     const response = await api.post('/transactions', payload);
+    return response.data;
+  }
+);
+
+export const checkTransactionStatus = createAsyncThunk(
+  'transaction/checkStatus',
+  async (transactionId: string) => {
+    const response = await api.get(`/transactions/${transactionId}/status`);
     return response.data;
   }
 );
@@ -52,6 +68,17 @@ const transactionSlice = createSlice({
       .addCase(createTransaction.rejected, (state, action) => {
         state.status = 'failed';
         state.error = action.error.message || 'Transaction failed';
+      })
+      .addCase(checkTransactionStatus.pending, (state) => {
+        state.status = 'loading';
+      })
+      .addCase(checkTransactionStatus.fulfilled, (state, action) => {
+        state.status = 'succeeded';
+        state.transactionResult = action.payload;
+      })
+      .addCase(checkTransactionStatus.rejected, (state, action) => {
+        state.status = 'failed';
+        state.error = action.error.message || 'Status check failed';
       });
   },
 });

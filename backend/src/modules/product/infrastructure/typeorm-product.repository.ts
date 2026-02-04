@@ -12,7 +12,11 @@ export class TypeOrmProductRepository implements ProductRepository {
   ) {}
 
   async findAll(): Promise<Product[]> {
-    return this.repository.find();
+    return this.repository.find({
+      order: {
+        name: 'ASC',
+      },
+    });
   }
 
   async findById(id: number): Promise<Product | null> {

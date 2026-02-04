@@ -1,0 +1,108 @@
+import { Test, TestingModule } from '@nestjs/testing';
+import { CheckTransactionStatusUseCase } from './check-transaction-status.use-case';
+import { TRANSACTION_REPOSITORY } from '../domain/transaction.repository';
+import { PRODUCT_REPOSITORY } from '../../product/domain/product.repository';
+import { TransactionStatus, Transaction } from '../domain/transaction.entity';
+import { PaymentGatewayService } from '../../payment/payment-gateway.service';
+import { NotFoundException } from '@nestjs/common';
+
+describe('CheckTransactionStatusUseCase', () => {
+  let useCase: CheckTransactionStatusUseCase;
+  let transactionRepository: any;
+  let productRepository: any;
+  let paymentGatewayService: any;
+
+  beforeEach(async () => {
+    transactionRepository = {
+      findById: jest.fn(),
+      save: jest.fn(),
+    };
+    productRepository = {
+      findById: jest.fn(),
+      save: jest.fn(),
+    };
+    paymentGatewayService = {
+      getTransactionStatus: jest.fn(),
+    };
+
+    const module: TestingModule = await Test.createTestingModule({
+      providers: [
+        CheckTransactionStatusUseCase,
+        {
+          provide: TRANSACTION_REPOSITORY,
+          useValue: transactionRepository,
+        },
+        {
+          provide: PRODUCT_REPOSITORY,
+          useValue: productRepository,
+        },
+        {
+          provide: PaymentGatewayService,
+          useValue: paymentGatewayService,
+        },
+      ],
+    }).compile();
+
+    useCase = module.get<CheckTransactionStatusUseCase>(CheckTransactionStatusUseCase);
+  });
+
+  it('should throw NotFoundException if transaction does not exist', async () => {
+    transactionRepository.findById.mockResolvedValue(null);
+    await expect(useCase.execute('some-id')).rejects.toThrow(NotFoundException);
+  });
+
+  it('should update status and decrease stock when status changes to APPROVED', async () => {
+    const mockTransaction = {
+      id: 'tx_1',
+      product_id: 1,
+      status: TransactionStatus.PENDING,
+      payment_gateway_id: 'gateway_1',
+    } as Transaction;
+
+    const mockPaymentGatewayResponse = {
+      id: 'gateway_1',
+      status: 'APPROVED',
+      currency: 'COP',
+      amount_in_cents: 1000,
+    };
+
+    const mockProduct = { id: 1, stock: 10 };
+
+    transactionRepository.findById.mockResolvedValue(mockTransaction);
+    paymentGatewayService.getTransactionStatus.mockResolvedValue(mockPaymentGatewayResponse);
+    productRepository.findById.mockResolvedValue(mockProduct);
+    transactionRepository.save.mockImplementation((t: Transaction) => Promise.resolve(t));
+
+    const result = await useCase.execute('tx_1');
+
+    expect(result.status).toBe(TransactionStatus.APPROVED);
+    expect(productRepository.save).toHaveBeenCalled();
+    expect(mockProduct.stock).toBe(9);
+    expect(transactionRepository.save).toHaveBeenCalled();
+  });
+
+  it('should not update stock if status was already APPROVED', async () => {
+    const mockTransaction = {
+      id: 'tx_1',
+      product_id: 1,
+      status: TransactionStatus.APPROVED,
+      payment_gateway_id: 'gateway_1',
+    } as Transaction;
+
+    const mockPaymentGatewayResponse = {
+      id: 'gateway_1',
+      status: 'APPROVED',
+      currency: 'COP',
+      amount_in_cents: 1000,
+    };
+
+    transactionRepository.findById.mockResolvedValue(mockTransaction);
+    paymentGatewayService.getTransactionStatus.mockResolvedValue(mockPaymentGatewayResponse);
+
+    const result = await useCase.execute('tx_1');
+
+    expect(result.status).toBe(TransactionStatus.APPROVED);
+    expect(productRepository.save).not.toHaveBeenCalled();
+    expect(transactionRepository.save).not.toHaveBeenCalled();
+  });
+});

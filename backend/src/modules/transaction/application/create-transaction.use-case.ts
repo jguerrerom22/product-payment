@@ -2,7 +2,7 @@ import { BadRequestException, Inject, Injectable, NotFoundException } from '@nes
 import { Transaction, TransactionStatus } from '../domain/transaction.entity';
 import { TRANSACTION_REPOSITORY, TransactionRepository } from '../domain/transaction.repository';
 import { PRODUCT_REPOSITORY, ProductRepository } from '../../product/domain/product.repository';
-import { WompiService } from '../../payment/wompi.service'; // We will create this next
+import { PaymentGatewayService } from '../../payment/payment-gateway.service';
 
 import { IsNumber, IsObject, IsNotEmpty, Min, IsInt } from 'class-validator';
 
@@ -20,10 +20,17 @@ export class CreateTransactionDto {
   @IsNotEmpty()
   deliveryInfo: Record<string, any>;
 
+  @IsNotEmpty()
+  customerEmail: string;
+
   @IsObject()
   @IsNotEmpty()
   paymentInfo: {
-    token: string;
+    number: string;
+    cvc: string;
+    exp_month: string;
+    exp_year: string;
+    card_holder: string;
     installments: number;
     [key: string]: any;
   };
@@ -36,8 +43,7 @@ export class CreateTransactionUseCase {
     private readonly transactionRepository: TransactionRepository,
     @Inject(PRODUCT_REPOSITORY)
     private readonly productRepository: ProductRepository,
-     // In a real ROP, we might separate this, but for now we integrate the call here or in a separate service
-    private readonly wompiService: WompiService,
+    private readonly paymentGatewayService: PaymentGatewayService,
   ) {}
 
   async execute(dto: CreateTransactionDto): Promise<Transaction> {
@@ -56,27 +62,25 @@ export class CreateTransactionUseCase {
     transaction.amount = dto.amount;
     transaction.delivery_info = dto.deliveryInfo;
     transaction.status = TransactionStatus.PENDING;
-    // Mask sensitive info
     transaction.payment_info = {
-      ...dto.paymentInfo,
-      token: 'MASKED_TOKEN', 
+      card_number: `**** **** **** ${dto.paymentInfo.number.slice(-4)}`,
+      card_holder: dto.paymentInfo.card_holder,
     };
     
     const savedTransaction = await this.transactionRepository.save(transaction);
 
-    // 3. Initiate Payment with Wompi (or Mock)
+    // 3. Initiate Payment with Payment Gateway
     try {
-      const paymentResponse = await this.wompiService.createTransaction(
+      const paymentResponse = await this.paymentGatewayService.createTransaction(
         savedTransaction.id,
         dto.amount,
-        dto.paymentInfo.token,
+        dto.customerEmail,
+        dto.paymentInfo,
         dto.paymentInfo.installments
       );
 
-      // 4. Update Transaction based on immediate response (if synchronous) or wait for webhook
-      // Wompi API usually returns a transaction ID immediately with status PENDING/APPROVED/DECLINED
-      
-      savedTransaction.wompi_id = paymentResponse.id;
+      // 4. Update Transaction status
+      savedTransaction.payment_gateway_id = paymentResponse.id;
       savedTransaction.status = paymentResponse.status as TransactionStatus;
 
       if (savedTransaction.status === TransactionStatus.APPROVED) {

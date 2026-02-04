@@ -1,6 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { TransactionController } from './transaction.controller';
 import { CreateTransactionUseCase } from '../application/create-transaction.use-case';
+import { CheckTransactionStatusUseCase } from '../application/check-transaction-status.use-case';
 import { TransactionRepository, TRANSACTION_REPOSITORY } from '../domain/transaction.repository';
 import { NotFoundException } from '@nestjs/common';
 import { Transaction, TransactionStatus } from '../domain/transaction.entity';
@@ -8,6 +9,7 @@ import { Transaction, TransactionStatus } from '../domain/transaction.entity';
 describe('TransactionController', () => {
   let controller: TransactionController;
   let createTransactionUseCase: CreateTransactionUseCase;
+  let checkTransactionStatusUseCase: CheckTransactionStatusUseCase;
   let transactionRepository: TransactionRepository;
 
   beforeEach(async () => {
@@ -16,6 +18,12 @@ describe('TransactionController', () => {
       providers: [
         {
           provide: CreateTransactionUseCase,
+          useValue: {
+            execute: jest.fn(),
+          },
+        },
+        {
+          provide: CheckTransactionStatusUseCase,
           useValue: {
             execute: jest.fn(),
           },
@@ -31,6 +39,7 @@ describe('TransactionController', () => {
 
     controller = module.get<TransactionController>(TransactionController);
     createTransactionUseCase = module.get<CreateTransactionUseCase>(CreateTransactionUseCase);
+    checkTransactionStatusUseCase = module.get<CheckTransactionStatusUseCase>(CheckTransactionStatusUseCase);
     transactionRepository = module.get<TransactionRepository>(TRANSACTION_REPOSITORY);
   });
 
@@ -40,7 +49,20 @@ describe('TransactionController', () => {
 
   describe('create', () => {
     it('should create a transaction', async () => {
-      const dto = { productId: 1, amount: 1000, deliveryInfo: {}, paymentInfo: { token: 'tok', installments: 1 } };
+      const dto = { 
+        productId: 1, 
+        amount: 1000, 
+        customerEmail: 'test@example.com', 
+        deliveryInfo: {}, 
+        paymentInfo: { 
+          number: '4242424242424242',
+          cvc: '123',
+          exp_month: '12',
+          exp_year: '25',
+          card_holder: 'Test User',
+          installments: 1 
+        } 
+      };
       const result = { id: 'tx_1', status: TransactionStatus.PENDING } as Transaction;
       jest.spyOn(createTransactionUseCase, 'execute').mockResolvedValue(result);
 
