@@ -7,7 +7,8 @@ import { TypeOrmTransactionRepository } from './infrastructure/typeorm-transacti
 import { TRANSACTION_REPOSITORY } from './domain/transaction.repository';
 import { CreateTransactionUseCase } from './application/create-transaction.use-case';
 import { CheckTransactionStatusUseCase } from './application/check-transaction-status.use-case';
-import { PaymentGatewayService } from '../payment/payment-gateway.service';
+import { PAYMENT_GATEWAY_PROVIDER } from '../payment/domain/payment-gateway.interface';
+import { WompiAdapter } from '../payment/infrastructure/wompi.adapter';
 import { ProductModule } from '../product/product.module'; // To access ProductRepository
 
 @Module({
@@ -24,7 +25,10 @@ import { ProductModule } from '../product/product.module'; // To access ProductR
     },
     CreateTransactionUseCase,
     CheckTransactionStatusUseCase,
-    PaymentGatewayService,
+    {
+      provide: PAYMENT_GATEWAY_PROVIDER,
+      useClass: WompiAdapter,
+    },
   ],
   exports: [TRANSACTION_REPOSITORY], 
 })

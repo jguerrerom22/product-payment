@@ -2,7 +2,7 @@ import { Inject, Injectable, NotFoundException, Logger } from '@nestjs/common';
 import { Transaction, TransactionStatus } from '../domain/transaction.entity';
 import { TRANSACTION_REPOSITORY, TransactionRepository } from '../domain/transaction.repository';
 import { PRODUCT_REPOSITORY, ProductRepository } from '../../product/domain/product.repository';
-import { PaymentGatewayService } from '../../payment/payment-gateway.service';
+import { PaymentGateway, PAYMENT_GATEWAY_PROVIDER } from '../../payment/domain/payment-gateway.interface';
 
 @Injectable()
 export class CheckTransactionStatusUseCase {
@@ -13,7 +13,8 @@ export class CheckTransactionStatusUseCase {
     private readonly transactionRepository: TransactionRepository,
     @Inject(PRODUCT_REPOSITORY)
     private readonly productRepository: ProductRepository,
-    private readonly paymentGatewayService: PaymentGatewayService,
+    @Inject(PAYMENT_GATEWAY_PROVIDER)
+    private readonly paymentGateway: PaymentGateway,
   ) {}
 
   async execute(transactionId: string): Promise<Transaction> {
@@ -31,7 +32,7 @@ export class CheckTransactionStatusUseCase {
     const oldStatus = transaction.status;
 
     // Fetch current status from Payment Gateway
-    const paymentGatewayResult = await this.paymentGatewayService.getTransactionStatus(transaction.payment_gateway_id);
+    const paymentGatewayResult = await this.paymentGateway.getTransactionStatus(transaction.payment_gateway_id);
     const newStatus = paymentGatewayResult.status as TransactionStatus;
 
     if (oldStatus !== newStatus) {

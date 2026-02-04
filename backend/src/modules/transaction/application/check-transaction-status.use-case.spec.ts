@@ -3,14 +3,14 @@ import { CheckTransactionStatusUseCase } from './check-transaction-status.use-ca
 import { TRANSACTION_REPOSITORY } from '../domain/transaction.repository';
 import { PRODUCT_REPOSITORY } from '../../product/domain/product.repository';
 import { TransactionStatus, Transaction } from '../domain/transaction.entity';
-import { PaymentGatewayService } from '../../payment/payment-gateway.service';
+import { PaymentGateway, PAYMENT_GATEWAY_PROVIDER } from '../../payment/domain/payment-gateway.interface';
 import { NotFoundException } from '@nestjs/common';
 
 describe('CheckTransactionStatusUseCase', () => {
   let useCase: CheckTransactionStatusUseCase;
   let transactionRepository: any;
   let productRepository: any;
-  let paymentGatewayService: any;
+  let paymentGateway: any;
 
   beforeEach(async () => {
     transactionRepository = {
@@ -21,7 +21,7 @@ describe('CheckTransactionStatusUseCase', () => {
       findById: jest.fn(),
       save: jest.fn(),
     };
-    paymentGatewayService = {
+    paymentGateway = {
       getTransactionStatus: jest.fn(),
     };
 
@@ -37,8 +37,8 @@ describe('CheckTransactionStatusUseCase', () => {
           useValue: productRepository,
         },
         {
-          provide: PaymentGatewayService,
-          useValue: paymentGatewayService,
+          provide: PAYMENT_GATEWAY_PROVIDER,
+          useValue: paymentGateway,
         },
       ],
     }).compile();
@@ -69,7 +69,7 @@ describe('CheckTransactionStatusUseCase', () => {
     const mockProduct = { id: 1, stock: 10 };
 
     transactionRepository.findById.mockResolvedValue(mockTransaction);
-    paymentGatewayService.getTransactionStatus.mockResolvedValue(mockPaymentGatewayResponse);
+    paymentGateway.getTransactionStatus.mockResolvedValue(mockPaymentGatewayResponse);
     productRepository.findById.mockResolvedValue(mockProduct);
     transactionRepository.save.mockImplementation((t: Transaction) => Promise.resolve(t));
 
@@ -97,7 +97,7 @@ describe('CheckTransactionStatusUseCase', () => {
     };
 
     transactionRepository.findById.mockResolvedValue(mockTransaction);
-    paymentGatewayService.getTransactionStatus.mockResolvedValue(mockPaymentGatewayResponse);
+    paymentGateway.getTransactionStatus.mockResolvedValue(mockPaymentGatewayResponse);
 
     const result = await useCase.execute('tx_1');
 

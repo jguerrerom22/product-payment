@@ -2,25 +2,11 @@ import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import axios from 'axios';
 import * as crypto from 'crypto';
-
-export interface CardDetails {
-  number: string;
-  cvc: string;
-  exp_month: string;
-  exp_year: string;
-  card_holder: string;
-}
-
-export interface PaymentGatewayTransactionResponse {
-  id: string; 
-  status: 'PENDING' | 'APPROVED' | 'DECLINED' | 'ERROR' | 'VOIDED';
-  currency: string;
-  amount_in_cents: number;
-}
+import { CardDetails, PaymentGateway, PaymentGatewayTransactionResponse } from '../domain/payment-gateway.interface';
 
 @Injectable()
-export class PaymentGatewayService {
-  private readonly logger = new Logger(PaymentGatewayService.name);
+export class WompiAdapter implements PaymentGateway {
+  private readonly logger = new Logger(WompiAdapter.name);
   private readonly apiUrl: string;
   private readonly publicKey: string;
   private readonly privateKey: string;
@@ -51,7 +37,7 @@ export class PaymentGatewayService {
         }
       );
       return response.data.data.id;
-    } catch (error) {
+    } catch (error: any) {
       this.logger.error('Error tokenizing card', error.response?.data || error.message);
       throw new Error('Could not tokenize credit card');
     }
@@ -61,7 +47,7 @@ export class PaymentGatewayService {
     try {
       const response = await axios.get(`${this.apiUrl}/merchants/${this.publicKey}`);
       return response.data.data.presigned_acceptance.acceptance_token;
-    } catch (error) {
+    } catch (error: any) {
       this.logger.error('Error fetching acceptance token', error.response?.data || error.message);
       throw new Error('Could not fetch acceptance token');
     }
@@ -120,7 +106,7 @@ export class PaymentGatewayService {
         currency: data.currency,
         amount_in_cents: data.amount_in_cents,
       };
-    } catch (error) {
+    } catch (error: any) {
       this.logger.error('Error creating payment transaction', error.response?.data || error.message);
       throw error;
     }
@@ -141,7 +127,7 @@ export class PaymentGatewayService {
         currency: data.currency,
         amount_in_cents: data.amount_in_cents,
       };
-    } catch (error) {
+    } catch (error: any) {
       this.logger.error(`Error fetching transaction ${paymentGatewayId}`, error.response?.data || error.message);
       throw error;
     }
