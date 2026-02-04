@@ -1,35 +1,65 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import { useState, useEffect } from 'react';
+import styled from 'styled-components';
+import { useSelector } from 'react-redux';
+import { type RootState } from './store';
+import { type Product } from './store/products/productSlice';
+import ProductList from './components/ProductList';
+import PaymentModal from './components/PaymentModal';
+import ResultPage from './components/ResultPage';
 
-function App() {
-  const [count, setCount] = useState(0)
+const AppContainer = styled.div`
+  font-family: 'Inter', sans-serif;
+  background-color: #f5f7fa;
+  min-height: 100vh;
+`;
+
+const App = () => {
+  const [selectedProduct, setSelectedProduct] = useState<Product | null>(() => {
+    const saved = localStorage.getItem('wompi_selected_product');
+    return saved ? JSON.parse(saved) : null;
+  });
+  
+  const { status } = useSelector((state: RootState) => state.transaction);
+
+  useEffect(() => {
+    if (selectedProduct) {
+      localStorage.setItem('wompi_selected_product', JSON.stringify(selectedProduct));
+    } else {
+      // Only remove if it's explicitly null (not just during initial load if it was already null)
+      localStorage.removeItem('wompi_selected_product');
+      localStorage.removeItem('wompi_payment_step');
+    }
+  }, [selectedProduct]);
+
+  useEffect(() => {
+    if (status === 'succeeded') {
+      localStorage.removeItem('wompi_selected_product');
+      localStorage.removeItem('wompi_payment_step');
+      localStorage.removeItem('wompi_payment_form');
+    }
+  }, [status]);
+
+  const showResult = status === 'succeeded' || status === 'failed';
+
+  if (showResult) {
+    return (
+      <AppContainer>
+        <ResultPage onBack={() => setSelectedProduct(null)} />
+      </AppContainer>
+    );
+  }
 
   return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
-  )
-}
+    <AppContainer>
+      <ProductList onSelectProduct={setSelectedProduct} />
+      {selectedProduct && (
+        <PaymentModal 
+          product={selectedProduct} 
+          onClose={() => setSelectedProduct(null)} 
+        />
+      )}
+    </AppContainer>
+  );
+};
 
-export default App
+export default App;
