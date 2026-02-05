@@ -1,9 +1,10 @@
 import { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import { useSelector } from 'react-redux';
+import { BrowserRouter, Routes, Route, Navigate, useNavigate, useLocation } from 'react-router-dom';
 import { type RootState } from './store';
-import { type Product } from './store/products/productSlice';
 import ProductList from './components/ProductList';
+import ProductDetail from './components/ProductDetail';
 import PaymentModal from './components/PaymentModal';
 import ResultPage from './components/ResultPage';
 
@@ -13,23 +14,27 @@ const AppContainer = styled.div`
   min-height: 100vh;
 `;
 
-const App = () => {
-  const [selectedProduct, setSelectedProduct] = useState<Product | null>(() => {
-    const saved = localStorage.getItem('payment_gateway_selected_product');
-    return saved ? JSON.parse(saved) : null;
-  });
-  
-  const { status, transactionResult } = useSelector((state: RootState) => state.transaction);
+const ScrollToTop = () => {
+  const { pathname } = useLocation();
 
   useEffect(() => {
-    if (selectedProduct) {
-      localStorage.setItem('payment_gateway_selected_product', JSON.stringify(selectedProduct));
-    } else {
-      // Only remove if it's explicitly null (not just during initial load if it was already null)
-      localStorage.removeItem('payment_gateway_selected_product');
-      localStorage.removeItem('payment_gateway_payment_step');
+    window.scrollTo(0, 0);
+  }, [pathname]);
+
+  return null;
+};
+
+const MainContent = () => {
+  const [selectedProduct, setSelectedProduct] = useState<any>(null);
+  const { status, transactionResult } = useSelector((state: RootState) => state.transaction);
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (status === 'succeeded' || status === 'failed') {
+      setSelectedProduct(null);
+      navigate('/result');
     }
-  }, [selectedProduct]);
+  }, [status, navigate]);
 
   useEffect(() => {
     if (status === 'succeeded') {
@@ -39,19 +44,22 @@ const App = () => {
     }
   }, [status]);
 
-  const showResult = (status === 'succeeded' || status === 'failed') || (status === 'loading' && !!transactionResult);
-
-  if (showResult) {
-    return (
-      <AppContainer>
-        <ResultPage onBack={() => setSelectedProduct(null)} />
-      </AppContainer>
-    );
-  }
-
   return (
     <AppContainer>
-      <ProductList onSelectProduct={setSelectedProduct} />
+      <ScrollToTop />
+      <Routes>
+        <Route path="/" element={<ProductList onSelectProduct={(p: any) => setSelectedProduct(p)} />} />
+        <Route path="/product/:id" element={<ProductDetail onPay={(p: any) => setSelectedProduct(p)} />} />
+        <Route 
+          path="/result" 
+          element={
+            (status === 'succeeded' || status === 'failed' || (status === 'loading' && !!transactionResult)) 
+              ? <ResultPage /> 
+              : <Navigate to="/" />
+          } 
+        />
+        <Route path="*" element={<Navigate to="/" />} />
+      </Routes>
       {selectedProduct && (
         <PaymentModal 
           product={selectedProduct} 
@@ -59,6 +67,14 @@ const App = () => {
         />
       )}
     </AppContainer>
+  );
+};
+
+const App = () => {
+  return (
+    <BrowserRouter>
+      <MainContent />
+    </BrowserRouter>
   );
 };
 

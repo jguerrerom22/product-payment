@@ -22,11 +22,12 @@ vi.mock('react-imask', () => ({
 }));
 
 const mockProduct = {
-  id: '1',
+  id: 1,
   name: 'Test Product',
   price: 1000,
   stock: 10,
-  img_url: 'url'
+  img_url: 'url',
+  images: ['url']
 };
 
 const createMockStore = (initialState = {}) => {
@@ -36,7 +37,8 @@ const createMockStore = (initialState = {}) => {
       products: productReducer,
     },
     preloadedState: {
-      transaction: { status: 'idle', error: null },
+      transaction: { status: 'idle', error: null, currentTransactionId: null, transactionResult: null },
+      products: { items: [mockProduct], status: 'succeeded', error: null },
       ...initialState
     } as any
   });
@@ -45,7 +47,7 @@ const createMockStore = (initialState = {}) => {
 describe('PaymentModal', () => {
   const onClose = vi.fn();
 
-  it('renders checkout form initially', () => {
+  it('renders checkout form with customer and delivery fields', () => {
     const store = createMockStore();
     render(
       <Provider store={store}>
@@ -55,10 +57,14 @@ describe('PaymentModal', () => {
 
     expect(screen.getByText('Checkout')).toBeDefined();
     expect(screen.getByLabelText('Card Number')).toBeDefined();
-    expect(screen.getByLabelText('Card Holder Name')).toBeDefined();
+    expect(screen.getByLabelText('Full Name')).toBeDefined();
+    expect(screen.getByLabelText('Email')).toBeDefined();
+    expect(screen.getByLabelText('Phone')).toBeDefined();
+    expect(screen.getByLabelText('Address')).toBeDefined();
+    expect(screen.getByLabelText('City')).toBeDefined();
   });
 
-  it('validates form fields', async () => {
+  it('validates all required form fields', async () => {
     const store = createMockStore();
     render(
       <Provider store={store}>
@@ -69,10 +75,11 @@ describe('PaymentModal', () => {
     const submitButton = screen.getByText('Validate and Continue');
     fireEvent.click(submitButton);
 
-    expect(screen.getAllByText('Required').length).toBeGreaterThan(0);
+    const errorTexts = screen.getAllByText('Required');
+    expect(errorTexts.length).toBeGreaterThanOrEqual(7);
   });
 
-  it('calls onClose when close button is clicked', () => {
+  it('shows summary after successful validation', () => {
     const store = createMockStore();
     render(
       <Provider store={store}>
@@ -80,9 +87,23 @@ describe('PaymentModal', () => {
       </Provider>
     );
 
-    const closeButton = screen.getByLabelText('Close modal');
-    fireEvent.click(closeButton);
+    fireEvent.change(screen.getByLabelText('Card Holder Name'), { target: { value: 'JOHN DOE', name: 'cardHolder' } });
+    fireEvent.change(screen.getByLabelText('Full Name'), { target: { value: 'John Doe', name: 'fullName' } });
+    fireEvent.change(screen.getByLabelText('Email'), { target: { value: 'john@example.com', name: 'email' } });
+    fireEvent.change(screen.getByLabelText('Phone'), { target: { value: '3001234567', name: 'phone' } });
+    fireEvent.change(screen.getByLabelText('Address'), { target: { value: 'Calle 123', name: 'address' } });
+    fireEvent.change(screen.getByLabelText('City'), { target: { value: 'Bogota', name: 'city' } });
+    
+    // cardNumber and expiry use IMask mock
+    fireEvent.change(screen.getByLabelText('Card Number'), { target: { value: '4242 4242 4242 4242', name: 'cardNumber' } });
+    fireEvent.change(screen.getByLabelText('Expiry (MM/YY)'), { target: { value: '12/25', name: 'expiry' } });
+    fireEvent.change(screen.getByLabelText('CVV'), { target: { value: '123', name: 'cvv' } });
 
-    expect(onClose).toHaveBeenCalled();
+    fireEvent.click(screen.getByText('Validate and Continue'));
+
+    // Should now show summary
+    expect(screen.getByText('Payment Summary')).toBeDefined();
+    expect(screen.getByText(/Total:/)).toBeDefined();
+    expect(screen.getByText(/Product:/)).toBeDefined();
   });
 });

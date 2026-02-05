@@ -5,6 +5,8 @@ import { Product } from './modules/product/domain/product.entity';
 import { ProductModule } from './modules/product/product.module';
 import { Transaction } from './modules/transaction/domain/transaction.entity';
 import { TransactionModule } from './modules/transaction/transaction.module';
+import { Customer } from './modules/customer/domain/customer.entity';
+import { CustomerModule } from './modules/customer/customer.module';
 import { AppController } from './app.controller';
 
 @Module({
@@ -21,13 +23,14 @@ import { AppController } from './app.controller';
         username: configService.get<string>('DB_USERNAME'),
         password: configService.get<string>('DB_PASSWORD'),
         database: configService.get<string>('DB_NAME'),
-        entities: [Product, Transaction],
+        entities: [Product, Transaction, Customer],
         synchronize: true, // Only for dev/test environments
       }),
       inject: [ConfigService],
     }),
     ProductModule,
     TransactionModule,
+    CustomerModule,
   ],
   controllers: [AppController],
 })

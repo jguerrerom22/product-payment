@@ -1,4 +1,5 @@
 import React, { useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 import { useDispatch, useSelector } from 'react-redux';
 import { type RootState, type AppDispatch } from '../store';
@@ -66,12 +67,11 @@ const SecondaryButton = styled(Button)`
   }
 `;
 
-interface ResultPageProps {
-  onBack: () => void;
-}
+interface ResultPageProps {}
 
-const ResultPage: React.FC<ResultPageProps> = ({ onBack }) => {
+const ResultPage: React.FC<ResultPageProps> = () => {
   const dispatch = useDispatch<AppDispatch>();
+  const navigate = useNavigate();
   const { status, transactionResult, error } = useSelector((state: RootState) => state.transaction);
 
   useEffect(() => {
@@ -82,8 +82,13 @@ const ResultPage: React.FC<ResultPageProps> = ({ onBack }) => {
   }, [status, transactionResult?.status, dispatch]);
 
   const handleBack = () => {
+    const productId = transactionResult?.product_id;
     dispatch(resetTransaction());
-    onBack();
+    if (productId) {
+      navigate(`/product/${productId}`);
+    } else {
+      navigate('/');
+    }
   };
 
   const handleCheckStatus = () => {
@@ -126,7 +131,7 @@ const ResultPage: React.FC<ResultPageProps> = ({ onBack }) => {
       )}
 
       <ButtonGroup>
-        <SecondaryButton onClick={handleBack} disabled={isLoading}>Back to Store</SecondaryButton>
+        <SecondaryButton onClick={handleBack} disabled={isLoading}>Back to Product</SecondaryButton>
         {isPending && (
           <Button onClick={handleCheckStatus} disabled={isLoading}>
             {isLoading ? 'Checking...' : 'Update Status'}

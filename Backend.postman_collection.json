@@ -1,0 +1,139 @@
+{
+  "info": {
+    "_postman_id": "8d3d9e0e-4f3d-4c3e-8d3e-9f3d8e9d3d9e",
+    "name": "Wompi Backend API",
+    "description": "API for managing products and transactions in the Wompi Payment App integration.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Products",
+      "item": [
+        {
+          "name": "Get All Products",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{host}}/products",
+              "host": [
+                "{{host}}"
+              ],
+              "path": [
+                "products"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Product By ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{host}}/products/:id",
+              "host": [
+                "{{host}}"
+              ],
+              "path": [
+                "products",
+                ":id"
+              ],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "1"
+                }
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Transactions",
+      "item": [
+        {
+          "name": "Create Transaction",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"productId\": 1,\n    \"amount\": 1515000,\n    \"customerEmail\": \"customer@example.com\",\n    \"customerName\": \"John Doe\",\n    \"customerPhone\": \"3001234567\",\n    \"deliveryInfo\": {\n        \"address\": \"Calle 123 # 45-67\",\n        \"city\": \"Bogotá\",\n        \"phone\": \"3001234567\"\n    },\n    \"paymentInfo\": {\n        \"number\": \"4242424242424242\",\n        \"cvc\": \"123\",\n        \"exp_month\": \"12\",\n        \"exp_year\": \"25\",\n        \"card_holder\": \"JOHN DOE\",\n        \"installments\": 1\n    }\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{host}}/transactions",
+              "host": [
+                "{{host}}"
+              ],
+              "path": [
+                "transactions"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Check Transaction Status",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{host}}/transactions/:id/status",
+              "host": [
+                "{{host}}"
+              ],
+              "path": [
+                "transactions",
+                ":id",
+                "status"
+              ],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "uuid-here"
+                }
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    }
+  ],
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          ""
+        ]
+      }
+    },
+    {
+      "listen": "test",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          ""
+        ]
+      }
+    }
+  ],
+  "variable": [
+    {
+      "key": "host",
+      "value": "http://localhost:3000",
+      "type": "string"
+    }
+  ]
+}

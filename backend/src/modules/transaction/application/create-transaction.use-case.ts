@@ -3,6 +3,8 @@ import { Transaction, TransactionStatus } from '../domain/transaction.entity';
 import { TRANSACTION_REPOSITORY, TransactionRepository } from '../domain/transaction.repository';
 import { PRODUCT_REPOSITORY, ProductRepository } from '../../product/domain/product.repository';
 import { PaymentGateway, PAYMENT_GATEWAY_PROVIDER } from '../../payment/domain/payment-gateway.interface';
+import { CUSTOMER_REPOSITORY, CustomerRepository } from '../../customer/domain/customer.repository';
+import { Customer } from '../../customer/domain/customer.entity';
 
 import { IsNumber, IsObject, IsNotEmpty, Min, IsInt } from 'class-validator';
 
@@ -22,6 +24,12 @@ export class CreateTransactionDto {
 
   @IsNotEmpty()
   customerEmail: string;
+
+  @IsNotEmpty()
+  customerName: string;
+
+  @IsNotEmpty()
+  customerPhone: string;
 
   @IsObject()
   @IsNotEmpty()
@@ -45,6 +53,8 @@ export class CreateTransactionUseCase {
     private readonly productRepository: ProductRepository,
     @Inject(PAYMENT_GATEWAY_PROVIDER)
     private readonly paymentGateway: PaymentGateway,
+    @Inject(CUSTOMER_REPOSITORY)
+    private readonly customerRepository: CustomerRepository,
   ) {}
 
   async execute(dto: CreateTransactionDto): Promise<Transaction> {
@@ -57,12 +67,23 @@ export class CreateTransactionUseCase {
       throw new BadRequestException('Product out of stock');
     }
 
-    // 2. Create Pending Transaction
+    // 2. Handle Customer
+    let customer = await this.customerRepository.findByEmail(dto.customerEmail);
+    if (!customer) {
+      customer = new Customer();
+      customer.email = dto.customerEmail;
+      customer.full_name = dto.customerName;
+      customer.phone_number = dto.customerPhone;
+      customer = await this.customerRepository.save(customer);
+    }
+
+    // 3. Create Pending Transaction
     const transaction = new Transaction();
     transaction.product_id = dto.productId;
     transaction.amount = dto.amount;
     transaction.delivery_info = dto.deliveryInfo;
     transaction.status = TransactionStatus.PENDING;
+    transaction.customer_id = customer.id;
     transaction.payment_info = {
       card_number: `**** **** **** ${dto.paymentInfo.number.slice(-4)}`,
       card_holder: dto.paymentInfo.card_holder,

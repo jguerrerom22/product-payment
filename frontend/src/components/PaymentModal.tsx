@@ -219,6 +219,7 @@ interface PaymentFormData {
   expiry: string;
   cvv: string;
   email: string;
+  fullName: string;
   address: string;
   city: string;
   phone: string;
@@ -243,6 +244,7 @@ const PaymentModal: React.FC<PaymentModalProps> = ({ product, onClose }) => {
       expiry: '',
       cvv: '',
       email: '',
+      fullName: '',
       address: '',
       city: '',
       phone: ''
@@ -300,11 +302,13 @@ const PaymentModal: React.FC<PaymentModalProps> = ({ product, onClose }) => {
     if (formData.cardHolder.length < 5) newErrors.cardHolder = 'Cardholder name must be at least 5 characters long';
     if (!formData.expiry) newErrors.expiry = 'Required';
     if (!formData.cvv) newErrors.cvv = 'Required';
+    if (!formData.fullName) newErrors.fullName = 'Required';
     if (!formData.email) {
       newErrors.email = 'Required';
     } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
       newErrors.email = 'Invalid email';
     }
+    if (!formData.phone) newErrors.phone = 'Required';
     if (!formData.address) newErrors.address = 'Required';
     if (!formData.city) newErrors.city = 'Required';
     
@@ -325,6 +329,8 @@ const PaymentModal: React.FC<PaymentModalProps> = ({ product, onClose }) => {
       productId: product.id,
       amount: TOTAL,
       customerEmail: formData.email,
+      customerName: formData.fullName,
+      customerPhone: formData.phone,
       deliveryInfo: {
         address: formData.address,
         city: formData.city,
@@ -423,6 +429,21 @@ const PaymentModal: React.FC<PaymentModalProps> = ({ product, onClose }) => {
                 </FormGroup>
               </Row>
 
+              <h3 style={{ margin: '16px 0 8px' }}>Customer Info</h3>
+              
+              <FormGroup>
+                <Label htmlFor="fullName">Full Name</Label>
+                <Input 
+                  id="fullName"
+                  name="fullName" 
+                  value={formData.fullName} 
+                  onChange={handleChange}
+                  onFocus={handleInputFocus}
+                  placeholder="John Doe"
+                />
+                {errors.fullName && <ErrorText>{errors.fullName}</ErrorText>}
+              </FormGroup>
+
               <FormGroup>
                 <Label htmlFor="email">Email</Label>
                 <Input 
@@ -435,6 +456,19 @@ const PaymentModal: React.FC<PaymentModalProps> = ({ product, onClose }) => {
                   placeholder="john@example.com"
                 />
                 {errors.email && <ErrorText>{errors.email}</ErrorText>}
+              </FormGroup>
+
+              <FormGroup>
+                <Label htmlFor="phone">Phone</Label>
+                <Input 
+                  id="phone"
+                  name="phone" 
+                  value={formData.phone} 
+                  onChange={handleChange}
+                  onFocus={handleInputFocus}
+                  placeholder="3001234567"
+                />
+                {errors.phone && <ErrorText>{errors.phone}</ErrorText>}
               </FormGroup>
 
               <h3 style={{ margin: '16px 0 8px' }}>Delivery Info</h3>
@@ -462,16 +496,6 @@ const PaymentModal: React.FC<PaymentModalProps> = ({ product, onClose }) => {
                     onFocus={handleInputFocus}
                   />
                   {errors.city && <ErrorText>{errors.city}</ErrorText>}
-                </FormGroup>
-                <FormGroup style={{ flex: 1 }}>
-                  <Label htmlFor="phone">Phone</Label>
-                  <Input 
-                    id="phone"
-                    name="phone" 
-                    value={formData.phone} 
-                    onChange={handleChange}
-                    onFocus={handleInputFocus}
-                  />
                 </FormGroup>
               </Row>
 

@@ -2,7 +2,7 @@ import { createSlice, createAsyncThunk, type PayloadAction } from '@reduxjs/tool
 import api from '../../services/api';
 
 export interface Product {
-  id: string;
+  id: number;
   name: string;
   description: string;
   price: number;

@@ -53,6 +53,8 @@ describe('TransactionController', () => {
         productId: 1, 
         amount: 1000, 
         customerEmail: 'test@example.com', 
+        customerName: 'Test User',
+        customerPhone: '3001234567',
         deliveryInfo: {}, 
         paymentInfo: { 
           number: '4242424242424242',

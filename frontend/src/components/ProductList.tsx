@@ -1,4 +1,5 @@
 import React, { useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchProducts, type Product } from '../store/products/productSlice';
 import { type AppDispatch, type RootState } from '../store';
@@ -7,7 +8,7 @@ import { formatCurrency } from '../utils/validation';
 import { SkeletonImage, SkeletonTitle, SkeletonText, SkeletonButton } from './Skeleton';
 
 const Container = styled.div`
-  padding: 40px;
+  padding: 20px;
   width: 100%;
   box-sizing: border-box;
 `;
@@ -144,11 +145,12 @@ const Button = styled.button`
   padding: 12px;
   background-color: #1976d2;
   color: white;
-  border: none;
+  border: 1px solid transparent;
   border-radius: 8px;
   font-weight: 600;
   cursor: pointer;
   transition: background-color 0.2s;
+  box-sizing: border-box;
 
   &:hover {
     background-color: #1565c0;
@@ -157,6 +159,27 @@ const Button = styled.button`
   &:disabled {
     background-color: #bdbdbd;
     cursor: not-allowed;
+  }
+`;
+
+const SecondaryButton = styled(Link)`
+  display: block;
+  width: 100%;
+  padding: 12px;
+  background-color: white;
+  color: #1976d2;
+  border: 1px solid #1976d2;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  text-align: center;
+  text-decoration: none;
+  transition: all 0.2s;
+  margin-top: 8px;
+  box-sizing: border-box;
+
+  &:hover {
+    background-color: #f0f7ff;
   }
 `;
 
@@ -213,8 +236,11 @@ const ProductList: React.FC<ProductListProps> = ({ onSelectProduct }) => {
                 onClick={() => onSelectProduct(product)}
                 disabled={product.stock === 0}
               >
-                {product.stock === 0 ? 'Out of Stock' : 'Pay with credit card'}
+                {product.stock === 0 ? 'Out of Stock' : 'Pay now'}
               </Button>
+              <SecondaryButton to={`/product/${product.id}`}>
+                View Details
+              </SecondaryButton>
             </Content>
           </Card>
         ))}
