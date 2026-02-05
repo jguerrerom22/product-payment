@@ -363,8 +363,9 @@ const PaymentModal: React.FC<PaymentModalProps> = ({ product, onClose }) => {
 
             <Form onSubmit={handleNext}>
               <FormGroup>
-                <Label>Card Number</Label>
+                <Label htmlFor="cardNumber">Card Number</Label>
                 <StyledIMaskInput
+                  id="cardNumber"
                   mask="0000 0000 0000 0000"
                   name="cardNumber"
                   value={formData.cardNumber}
@@ -378,8 +379,9 @@ const PaymentModal: React.FC<PaymentModalProps> = ({ product, onClose }) => {
               </FormGroup>
 
               <FormGroup>
-                <Label>Card Holder Name</Label>
+                <Label htmlFor="cardHolder">Card Holder Name</Label>
                 <Input 
+                  id="cardHolder"
                   name="cardHolder" 
                   value={formData.cardHolder} 
                   onChange={handleChange}
@@ -392,8 +394,9 @@ const PaymentModal: React.FC<PaymentModalProps> = ({ product, onClose }) => {
 
               <Row>
                 <FormGroup style={{ flex: 1 }}>
-                  <Label>Expiry (MM/YY)</Label>
+                  <Label htmlFor="expiry">Expiry (MM/YY)</Label>
                   <StyledIMaskInput
+                    id="expiry"
                     mask="00/00"
                     name="expiry"
                     value={formData.expiry}
@@ -406,8 +409,9 @@ const PaymentModal: React.FC<PaymentModalProps> = ({ product, onClose }) => {
                   {errors.expiry && <ErrorText>{errors.expiry}</ErrorText>}
                 </FormGroup>
                 <FormGroup style={{ flex: 1 }}>
-                  <Label>CVV</Label>
+                  <Label htmlFor="cvv">CVV</Label>
                   <Input 
+                    id="cvv"
                     name="cvv" 
                     value={formData.cvv} 
                     onChange={handleChange}
@@ -420,8 +424,9 @@ const PaymentModal: React.FC<PaymentModalProps> = ({ product, onClose }) => {
               </Row>
 
               <FormGroup>
-                <Label>Email</Label>
+                <Label htmlFor="email">Email</Label>
                 <Input 
+                  id="email"
                   name="email" 
                   type="email"
                   value={formData.email} 
@@ -435,8 +440,9 @@ const PaymentModal: React.FC<PaymentModalProps> = ({ product, onClose }) => {
               <h3 style={{ margin: '16px 0 8px' }}>Delivery Info</h3>
               
               <FormGroup>
-                <Label>Address</Label>
+                <Label htmlFor="address">Address</Label>
                 <Input 
+                  id="address"
                   name="address" 
                   value={formData.address} 
                   onChange={handleChange}
@@ -447,8 +453,9 @@ const PaymentModal: React.FC<PaymentModalProps> = ({ product, onClose }) => {
               
               <Row>
                 <FormGroup style={{ flex: 1 }}>
-                  <Label>City</Label>
+                  <Label htmlFor="city">City</Label>
                   <Input 
+                    id="city"
                     name="city" 
                     value={formData.city} 
                     onChange={handleChange}
@@ -457,8 +464,9 @@ const PaymentModal: React.FC<PaymentModalProps> = ({ product, onClose }) => {
                   {errors.city && <ErrorText>{errors.city}</ErrorText>}
                 </FormGroup>
                 <FormGroup style={{ flex: 1 }}>
-                  <Label>Phone</Label>
+                  <Label htmlFor="phone">Phone</Label>
                   <Input 
+                    id="phone"
                     name="phone" 
                     value={formData.phone} 
                     onChange={handleChange}
