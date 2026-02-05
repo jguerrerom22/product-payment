@@ -2,7 +2,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { CreateTransactionUseCase } from './create-transaction.use-case';
 import { ProductRepository, PRODUCT_REPOSITORY } from '../../product/domain/product.repository';
 import { TransactionRepository, TRANSACTION_REPOSITORY } from '../domain/transaction.repository';
-import { PaymentGatewayService } from '../../payment/payment-gateway.service';
+import { PaymentGateway, PAYMENT_GATEWAY_PROVIDER } from '../../payment/domain/payment-gateway.interface';
 import { CreateTransactionDto } from './create-transaction.use-case';
 import { TransactionStatus } from '../domain/transaction.entity';
 import { NotFoundException, BadRequestException } from '@nestjs/common';
@@ -11,7 +11,7 @@ describe('CreateTransactionUseCase', () => {
   let useCase: CreateTransactionUseCase;
   let productRepository: ProductRepository;
   let transactionRepository: TransactionRepository;
-  let paymentGatewayService: PaymentGatewayService;
+  let paymentGateway: PaymentGateway;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -31,7 +31,7 @@ describe('CreateTransactionUseCase', () => {
           },
         },
         {
-          provide: PaymentGatewayService,
+          provide: PAYMENT_GATEWAY_PROVIDER,
           useValue: {
             createTransaction: jest.fn(),
           },
@@ -42,7 +42,7 @@ describe('CreateTransactionUseCase', () => {
     useCase = module.get<CreateTransactionUseCase>(CreateTransactionUseCase);
     productRepository = module.get<ProductRepository>(PRODUCT_REPOSITORY);
     transactionRepository = module.get<TransactionRepository>(TRANSACTION_REPOSITORY);
-    paymentGatewayService = module.get<PaymentGatewayService>(PaymentGatewayService);
+    paymentGateway = module.get<PaymentGateway>(PAYMENT_GATEWAY_PROVIDER);
   });
 
   it('should be defined', () => {
@@ -95,7 +95,7 @@ describe('CreateTransactionUseCase', () => {
     // @ts-ignore
     jest.spyOn(transactionRepository, 'save').mockImplementation((t) => Promise.resolve({ ...t, id: 'tx_1' }));
     
-    jest.spyOn(paymentGatewayService, 'createTransaction').mockResolvedValue({
+    jest.spyOn(paymentGateway, 'createTransaction').mockResolvedValue({
       id: 'gateway_1',
       status: 'APPROVED',
       currency: 'COP',

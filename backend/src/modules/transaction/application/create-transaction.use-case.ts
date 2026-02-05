@@ -2,7 +2,7 @@ import { BadRequestException, Inject, Injectable, NotFoundException } from '@nes
 import { Transaction, TransactionStatus } from '../domain/transaction.entity';
 import { TRANSACTION_REPOSITORY, TransactionRepository } from '../domain/transaction.repository';
 import { PRODUCT_REPOSITORY, ProductRepository } from '../../product/domain/product.repository';
-import { PaymentGatewayService } from '../../payment/payment-gateway.service';
+import { PaymentGateway, PAYMENT_GATEWAY_PROVIDER } from '../../payment/domain/payment-gateway.interface';
 
 import { IsNumber, IsObject, IsNotEmpty, Min, IsInt } from 'class-validator';
 
@@ -43,7 +43,8 @@ export class CreateTransactionUseCase {
     private readonly transactionRepository: TransactionRepository,
     @Inject(PRODUCT_REPOSITORY)
     private readonly productRepository: ProductRepository,
-    private readonly paymentGatewayService: PaymentGatewayService,
+    @Inject(PAYMENT_GATEWAY_PROVIDER)
+    private readonly paymentGateway: PaymentGateway,
   ) {}
 
   async execute(dto: CreateTransactionDto): Promise<Transaction> {
@@ -71,7 +72,7 @@ export class CreateTransactionUseCase {
 
     // 3. Initiate Payment with Payment Gateway
     try {
-      const paymentResponse = await this.paymentGatewayService.createTransaction(
+      const paymentResponse = await this.paymentGateway.createTransaction(
         savedTransaction.id,
         dto.amount,
         dto.customerEmail,
