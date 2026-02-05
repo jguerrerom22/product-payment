@@ -94,6 +94,47 @@ Nest is an MIT-licensed open source project. It can grow thanks to the sponsors 
 - Website - [https://nestjs.com](https://nestjs.com/)
 - Twitter - [@nestframework](https://twitter.com/nestframework)
 
+## Database Relational Diagram
+
+```mermaid
+erDiagram
+    PRODUCT ||--o{ TRANSACTION : "has"
+    CUSTOMER ||--o{ TRANSACTION : "makes"
+    
+    PRODUCT {
+        int id PK
+        string name
+        string description
+        decimal price
+        int stock
+        string img_url
+    }
+    
+    CUSTOMER {
+        uuid id PK
+        string full_name
+        string email
+        string phone_number
+    }
+    
+    TRANSACTION {
+        uuid id PK
+        string status
+        decimal amount
+        json delivery_info
+        json payment_info
+        string payment_gateway_id
+        int product_id FK
+        uuid customer_id FK
+        datetime created_at
+    }
+```
+
+## Postman Collection
+
+You can find the Postman collection for testing the API in:
+[Wompi_Backend.postman_collection.json](./Wompi_Backend.postman_collection.json)
+
 ## License
 
 Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).

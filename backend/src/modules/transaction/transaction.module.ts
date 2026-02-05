@@ -10,11 +10,13 @@ import { CheckTransactionStatusUseCase } from './application/check-transaction-s
 import { PAYMENT_GATEWAY_PROVIDER } from '../payment/domain/payment-gateway.interface';
 import { WompiAdapter } from '../payment/infrastructure/wompi.adapter';
 import { ProductModule } from '../product/product.module'; // To access ProductRepository
+import { CustomerModule } from '../customer/customer.module';
 
 @Module({
   imports: [
     TypeOrmModule.forFeature([Transaction]),
     ProductModule,
+    CustomerModule,
     ConfigModule,
   ],
   controllers: [TransactionController],

@@ -18,9 +18,11 @@ const initialState: TransactionState = {
 export const createTransaction = createAsyncThunk(
   'transaction/create',
   async (payload: {
-    productId: string;
+    productId: number;
     amount: number;
     customerEmail: string;
+    customerName: string;
+    customerPhone: string;
     deliveryInfo: any;
     paymentInfo: {
       number: string;

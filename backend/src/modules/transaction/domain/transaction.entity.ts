@@ -1,5 +1,6 @@
 import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, ManyToOne, JoinColumn } from 'typeorm';
 import { Product } from '../../product/domain/product.entity';
+import { Customer } from '../../customer/domain/customer.entity';
 
 export enum TransactionStatus {
   PENDING = 'PENDING',
@@ -40,6 +41,13 @@ export class Transaction {
 
   @Column({ nullable: true })
   payment_gateway_id: string;
+
+  @Column({ type: 'uuid', nullable: true })
+  customer_id: string;
+
+  @ManyToOne(() => Customer, (customer) => customer.transactions)
+  @JoinColumn({ name: 'customer_id' })
+  customer: Customer;
 
   @CreateDateColumn()
   created_at: Date;
