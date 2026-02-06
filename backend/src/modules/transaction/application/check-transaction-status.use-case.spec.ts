@@ -1,16 +1,18 @@
-import { Test, TestingModule } from '@nestjs/testing';
-import { CheckTransactionStatusUseCase } from './check-transaction-status.use-case';
-import { TRANSACTION_REPOSITORY } from '../domain/transaction.repository';
-import { PRODUCT_REPOSITORY } from '../../product/domain/product.repository';
-import { TransactionStatus, Transaction } from '../domain/transaction.entity';
-import { PaymentGateway, PAYMENT_GATEWAY_PROVIDER } from '../../payment/domain/payment-gateway.interface';
 import { NotFoundException } from '@nestjs/common';
+import { Test, TestingModule } from '@nestjs/testing';
+import { CreateDeliveryUseCase } from '../../delivery/application/create-delivery.use-case';
+import { PAYMENT_GATEWAY_PROVIDER } from '../../payment/domain/payment-gateway.interface';
+import { PRODUCT_REPOSITORY } from '../../product/domain/product.repository';
+import { Transaction, TransactionStatus } from '../domain/transaction.entity';
+import { TRANSACTION_REPOSITORY } from '../domain/transaction.repository';
+import { CheckTransactionStatusUseCase } from './check-transaction-status.use-case';
 
 describe('CheckTransactionStatusUseCase', () => {
   let useCase: CheckTransactionStatusUseCase;
   let transactionRepository: any;
   let productRepository: any;
   let paymentGateway: any;
+  let createDeliveryUseCase: any;
 
   beforeEach(async () => {
     transactionRepository = {
@@ -23,6 +25,9 @@ describe('CheckTransactionStatusUseCase', () => {
     };
     paymentGateway = {
       getTransactionStatus: jest.fn(),
+    };
+    createDeliveryUseCase = {
+      execute: jest.fn(),
     };
 
     const module: TestingModule = await Test.createTestingModule({
@@ -40,6 +45,10 @@ describe('CheckTransactionStatusUseCase', () => {
           provide: PAYMENT_GATEWAY_PROVIDER,
           useValue: paymentGateway,
         },
+        {
+          provide: CreateDeliveryUseCase,
+          useValue: createDeliveryUseCase,
+        },
       ],
     }).compile();
 
@@ -55,9 +64,18 @@ describe('CheckTransactionStatusUseCase', () => {
     const mockTransaction = {
       id: 'tx_1',
       product_id: 1,
+      amount: 1000,
       status: TransactionStatus.PENDING,
       payment_gateway_id: 'gateway_1',
-    } as Transaction;
+      customer_id: 'cust_1',
+      delivery_info: {
+        address: 'Calle 123',
+        city: 'Bogotá',
+        region: 'Cundinamarca',
+        country: 'Colombia',
+        postalCode: '110111',
+      },
+    } as any as Transaction;
 
     const mockPaymentGatewayResponse = {
       id: 'gateway_1',
@@ -87,7 +105,7 @@ describe('CheckTransactionStatusUseCase', () => {
       product_id: 1,
       status: TransactionStatus.APPROVED,
       payment_gateway_id: 'gateway_1',
-    } as Transaction;
+    } as any as Transaction;
 
     const mockPaymentGatewayResponse = {
       id: 'gateway_1',

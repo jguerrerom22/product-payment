@@ -8,7 +8,8 @@
     "build": "tsc -b && vite build",
     "lint": "eslint .",
     "preview": "vite preview",
-    "test": "vitest"
+    "test": "vitest",
+    "test:cov": "vitest run --coverage --coverage.provider=istanbul"
   },
   "engines": {
     "node": ">=20.0.0"

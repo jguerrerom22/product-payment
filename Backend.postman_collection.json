@@ -1,8 +1,8 @@
 {
   "info": {
     "_postman_id": "8d3d9e0e-4f3d-4c3e-8d3e-9f3d8e9d3d9e",
-    "name": "Wompi Backend API",
-    "description": "API for managing products and transactions in the Wompi Payment App integration.",
+    "name": "Eshop Backend API",
+    "description": "API for managing products, transactions, and deliveries in the Eshop integration.",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
   "item": [
@@ -62,7 +62,7 @@
             "header": [],
             "body": {
               "mode": "raw",
-              "raw": "{\n    \"productId\": 1,\n    \"amount\": 1515000,\n    \"customerEmail\": \"customer@example.com\",\n    \"customerName\": \"John Doe\",\n    \"customerPhone\": \"3001234567\",\n    \"deliveryInfo\": {\n        \"address\": \"Calle 123 # 45-67\",\n        \"city\": \"Bogotá\",\n        \"phone\": \"3001234567\"\n    },\n    \"paymentInfo\": {\n        \"number\": \"4242424242424242\",\n        \"cvc\": \"123\",\n        \"exp_month\": \"12\",\n        \"exp_year\": \"25\",\n        \"card_holder\": \"JOHN DOE\",\n        \"installments\": 1\n    }\n}",
+              "raw": "{\n    \"productId\": 1,\n    \"amount\": 1515000,\n    \"customerEmail\": \"customer@example.com\",\n    \"customerName\": \"John Doe\",\n    \"customerPhone\": \"3001234567\",\n    \"deliveryInfo\": {\n        \"address\": \"Calle 123 # 45-67\",\n        \"city\": \"Bogotá\",\n        \"region\": \"Cundinamarca\",\n        \"country\": \"Colombia\",\n        \"postalCode\": \"110111\",\n        \"phone\": \"3001234567\"\n    },\n    \"paymentInfo\": {\n        \"number\": \"4242424242424242\",\n        \"cvc\": \"123\",\n        \"exp_month\": \"12\",\n        \"exp_year\": \"25\",\n        \"card_holder\": \"JOHN DOE\",\n        \"installments\": 1\n    }\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -105,6 +105,63 @@
             }
           },
           "response": []
+        },
+        {
+          "name": "Get Filtered Transactions",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{host}}/transactions?status=APPROVED&customer_id=xxx",
+              "host": [
+                "{{host}}"
+              ],
+              "path": [
+                "transactions"
+              ],
+              "query": [
+                {
+                  "key": "status",
+                  "value": "APPROVED"
+                },
+                {
+                  "key": "customer_id",
+                  "value": "xxx"
+                }
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Deliveries",
+      "item": [
+        {
+          "name": "Get Deliveries by Customer",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{host}}/deliveries/customer/:customerId",
+              "host": [
+                "{{host}}"
+              ],
+              "path": [
+                "deliveries",
+                "customer",
+                ":customerId"
+              ],
+              "variable": [
+                {
+                  "key": "customerId",
+                  "value": "uuid-here"
+                }
+              ]
+            }
+          },
+          "response": []
         }
       ]
     }
@@ -132,7 +189,7 @@
   "variable": [
     {
       "key": "host",
-      "value": "http://localhost:3000",
+      "value": "https://83699s9ckc.execute-api.us-east-1.amazonaws.com/prod",
       "type": "string"
     }
   ]
