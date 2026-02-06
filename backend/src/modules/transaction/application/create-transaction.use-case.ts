@@ -5,6 +5,7 @@ import { PRODUCT_REPOSITORY, ProductRepository } from '../../product/domain/prod
 import { PaymentGateway, PAYMENT_GATEWAY_PROVIDER } from '../../payment/domain/payment-gateway.interface';
 import { CUSTOMER_REPOSITORY, CustomerRepository } from '../../customer/domain/customer.repository';
 import { Customer } from '../../customer/domain/customer.entity';
+import { CreateDeliveryUseCase } from '../../delivery/application/create-delivery.use-case';
 
 import { IsNumber, IsObject, IsNotEmpty, Min, IsInt } from 'class-validator';
 
@@ -20,7 +21,14 @@ export class CreateTransactionDto {
 
   @IsObject()
   @IsNotEmpty()
-  deliveryInfo: Record<string, any>;
+  deliveryInfo: {
+    address: string;
+    city: string;
+    region: string;
+    country: string;
+    postalCode: string;
+    [key: string]: any;
+  };
 
   @IsNotEmpty()
   customerEmail: string;
@@ -55,6 +63,7 @@ export class CreateTransactionUseCase {
     private readonly paymentGateway: PaymentGateway,
     @Inject(CUSTOMER_REPOSITORY)
     private readonly customerRepository: CustomerRepository,
+    private readonly createDeliveryUseCase: CreateDeliveryUseCase,
   ) {}
 
   async execute(dto: CreateTransactionDto): Promise<Transaction> {
@@ -109,6 +118,19 @@ export class CreateTransactionUseCase {
         // Decrease stock
         product.stock -= 1;
         await this.productRepository.save(product);
+
+        // Create Delivery Record
+        await this.createDeliveryUseCase.execute({
+          transactionId: savedTransaction.id,
+          customerId: customer.id,
+          deliveryInfo: {
+            address: dto.deliveryInfo.address,
+            city: dto.deliveryInfo.city,
+            region: dto.deliveryInfo.region,
+            country: dto.deliveryInfo.country,
+            postalCode: dto.deliveryInfo.postalCode,
+          },
+        });
       }
       
       return await this.transactionRepository.save(savedTransaction);

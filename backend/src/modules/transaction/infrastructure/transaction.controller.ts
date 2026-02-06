@@ -1,4 +1,4 @@
-import { Body, Controller, Post, Get, Param, ParseUUIDPipe, NotFoundException } from '@nestjs/common';
+import { Body, Controller, Post, Get, Param, ParseUUIDPipe, NotFoundException, Query } from '@nestjs/common';
 import { CreateTransactionUseCase, CreateTransactionDto } from '../application/create-transaction.use-case';
 import { CheckTransactionStatusUseCase } from '../application/check-transaction-status.use-case';
 import { Transaction } from '../domain/transaction.entity';
@@ -31,5 +31,20 @@ export class TransactionController {
   @Get(':id/status')
   async getStatus(@Param('id', ParseUUIDPipe) id: string): Promise<Transaction> {
     return this.checkTransactionStatusUseCase.execute(id);
+  }
+
+  @Get()
+  async findMany(
+    @Query('status') status?: any,
+    @Query('customer_id') customer_id?: string,
+    @Query('start_date') start_date?: string,
+    @Query('end_date') end_date?: string,
+  ): Promise<Transaction[]> {
+    return this.transactionRepository.findAll({
+      status,
+      customer_id,
+      start_date: start_date ? new Date(start_date) : undefined,
+      end_date: end_date ? new Date(end_date) : undefined,
+    });
   }
 }
