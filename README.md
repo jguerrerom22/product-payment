@@ -1,79 +1,50 @@
-# Product Payment App
+# E-Shop Fullstack Payment System
 
-This project implements a Product Payment Application using Payment Gateway integration. It consists of a **NestJS Backend** (Hexagonal Architecture) and a **React Frontend** (Redux + Vite).
+A complete e-commerce solution features a high-performance backend and a modern frontend interface, integrated with a secure Payment Gateway. This repository orchestrates the entire ecosystem, from inventory management to secure payment processing.
 
-## Architecture
+## 🌟 Live Demo
 
-### Backend
-- **Framework**: NestJS
-- **Architecture**: Hexagonal (Ports & Adapters)
-- **Database**: PostgreSQL with TypeORM
-- **Pattern**: Railway Oriented Programming principles in Use Cases.
-- **Payment Gateway**: Payment Gateway integration.
-- **Modules**:
-  - `Product`: Manages stock and listings.
-  - `Transaction`: Manages payment inputs and lifecycle.
+The application is fully deployed and accessible at the following URLs:
 
-### Frontend
-- **Framework**: React + Vite
-- **State Management**: Redux Toolkit (Flux Architecture)
-- **Styling**: Styled Components / CSS Modules
-- **Design**: Mobile-first, responsive.
+- **Frontend Interface**: [http://eshop-test-ui.s3-website-us-east-1.amazonaws.com/](http://eshop-test-ui.s3-website-us-east-1.amazonaws.com/)
+- **Backend API**: [https://83699s9ckc.execute-api.us-east-1.amazonaws.com/prod](https://83699s9ckc.execute-api.us-east-1.amazonaws.com/prod)
 
-## Setup & Running
+---
 
-### Prerequisites
-- Node.js (v18+)
-- PostgreSQL Database
+## 📁 Project Structure
 
-### Backend Setup
-1. Navigate to `backend` folder:
-   ```bash
-   cd backend
-   ```
-2. Install dependencies:
-   ```bash
-   npm install
-   ```
-3. Configure Environment:
-   - Copy `.env.example` to `.env`
-   - Update DB credentials and Payment gateway keys.
-4. Run Development Server:
-   ```bash
-   npm run start:dev
-   ```
-   *The application will seed dummy products on first run.*
+This repository is divided into two main components:
 
-### Frontend Setup
-1. Navigate to `frontend` folder:
-   ```bash
-   cd frontend
-   ```
-2. Install dependencies:
-   ```bash
-   npm install
-   ```
-3. Run Development Server:
-   ```bash
-   npm run dev
-   ```
+### 1. [Backend (NestJS API)](./backend)
+A serverless-ready API built with **NestJS**, following Hexagonal Architecture and DDD principles. It handles secure payment orchestration, stock management, and fulfillment tracking.
+- **Detailed Documentation**: [backend/README.md](./backend/README.md)
 
-## Testing
-The project includes unit tests for core logic.
+### 2. [Frontend (React + Vite)](./frontend)
+A modern, responsive web application built with **React** and **TypeScript**. It utilizes Redux Toolkit for state management and provides a seamless checkout experience with real-time feedback.
+- **Detailed Documentation**: [frontend/README.md](./frontend/README.md)
 
-- **Backend Tests**:
-  ```bash
-  cd backend
-  npm test
-  ```
-- **Frontend Tests**:
-  ```bash
-  cd frontend
-  npm test
-  ```
+---
 
-## Features
-- List of Products with stock management.
-- Credit Card Validation (Luhn Check, Visa/Mastercard detection).
-- Secure transaction flow (Backend orchestration).
-- Resilient UI (Redux state management).
+## 📮 API Documentation
+
+To simplify integration testing, a comprehensive Postman collection is included in the root directory:
+
+[Eshop Backend API Collection](./Backend.postman_collection.json)
+
+*Import this file into Postman to test live or local endpoints.*
+
+---
+
+## 🏛️ General Architecture
+
+The system is designed for high availability and security:
+- **Cloud Infrastructure**: Hosted on AWS using **Lambda** (Backend) and **S3 Static Website Hosting** (Frontend).
+- **Security**: Sensitive data is tokenized via the Payment Gateway. Frontend persistence strictly excludes PII and sensitive payment data.
+- **Resiliency**: Redux-based state management with LocalStorage recovery allows users to survive page refreshes during checkout.
+
+## 🛠️ Local Development
+
+For setup instructions, testing commands, and deployment guides, please refer to the specific README files in each directory:
+
+- [Backend Setup & Migrations](./backend/README.md#getting-started)
+- [Frontend Setup & Testing](./frontend/README.md#getting-started)

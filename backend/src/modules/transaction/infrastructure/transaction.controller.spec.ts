@@ -32,6 +32,7 @@ describe('TransactionController', () => {
           provide: TRANSACTION_REPOSITORY,
           useValue: {
             findById: jest.fn(),
+            findAll: jest.fn(),
           },
         },
       ],
@@ -55,7 +56,13 @@ describe('TransactionController', () => {
         customerEmail: 'test@example.com', 
         customerName: 'Test User',
         customerPhone: '3001234567',
-        deliveryInfo: {}, 
+        deliveryInfo: {
+          address: 'Calle 123',
+          city: 'Bogota',
+          region: 'Cundinamarca',
+          country: 'Colombia',
+          postalCode: '110111'
+        }, 
         paymentInfo: { 
           number: '4242424242424242',
           cvc: '123',
@@ -68,7 +75,26 @@ describe('TransactionController', () => {
       const result = { id: 'tx_1', status: TransactionStatus.PENDING } as Transaction;
       jest.spyOn(createTransactionUseCase, 'execute').mockResolvedValue(result);
 
-      expect(await controller.create(dto)).toBe(result);
+      expect(await controller.create(dto as any)).toBe(result);
+    });
+  });
+
+  describe('findAll', () => {
+    it('should return all transactions with filters', async () => {
+      const transactions = [{ id: 'tx_1' }] as Transaction[];
+      const filters = { status: TransactionStatus.APPROVED, customer_id: 'cust_1' };
+      // @ts-ignore
+      jest.spyOn(transactionRepository, 'findAll').mockResolvedValue(transactions);
+
+      const result = await controller.findMany(
+        filters.status,
+        filters.customer_id,
+        undefined,
+        undefined
+      );
+
+      expect(result).toEqual(transactions);
+      expect(transactionRepository.findAll).toHaveBeenCalledWith(filters);
     });
   });
 

@@ -40,7 +40,7 @@ describe('CreateDeliveryUseCase', () => {
     const savedDelivery = {
       id: 'del-123',
       ...dto,
-      status: DeliveryStatus.PENDING,
+      status: DeliveryStatus.TO_DELIVER,
     };
 
     jest.spyOn(repository, 'save').mockResolvedValue(savedDelivery as any);
@@ -52,7 +52,7 @@ describe('CreateDeliveryUseCase', () => {
       transaction_id: dto.transactionId,
       customer_id: dto.customerId,
       address: dto.deliveryInfo.address,
-      status: DeliveryStatus.PENDING,
+      status: DeliveryStatus.TO_DELIVER,
     }));
   });
 });

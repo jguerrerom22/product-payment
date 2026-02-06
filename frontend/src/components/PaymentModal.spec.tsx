@@ -64,6 +64,9 @@ describe('PaymentModal', () => {
     expect(screen.getByLabelText('Phone')).toBeDefined();
     expect(screen.getByLabelText('Address')).toBeDefined();
     expect(screen.getByLabelText('City')).toBeDefined();
+    expect(screen.getByLabelText('Region/State')).toBeDefined();
+    expect(screen.getByLabelText('Country')).toBeDefined();
+    expect(screen.getByLabelText('Postal Code')).toBeDefined();
   });
 
   it('validates all required form fields', async () => {
@@ -78,7 +81,7 @@ describe('PaymentModal', () => {
     fireEvent.click(submitButton);
 
     const errorTexts = screen.getAllByText('Required');
-    expect(errorTexts.length).toBeGreaterThanOrEqual(7);
+    expect(errorTexts.length).toBeGreaterThanOrEqual(10);
   });
 
   it('shows summary after successful validation', () => {
@@ -95,6 +98,9 @@ describe('PaymentModal', () => {
     fireEvent.change(screen.getByLabelText('Phone'), { target: { value: '3001234567', name: 'phone' } });
     fireEvent.change(screen.getByLabelText('Address'), { target: { value: 'Calle 123', name: 'address' } });
     fireEvent.change(screen.getByLabelText('City'), { target: { value: 'Bogota', name: 'city' } });
+    fireEvent.change(screen.getByLabelText('Region/State'), { target: { value: 'Cundinamarca', name: 'region' } });
+    fireEvent.change(screen.getByLabelText('Country'), { target: { value: 'Colombia', name: 'country' } });
+    fireEvent.change(screen.getByLabelText('Postal Code'), { target: { value: '110111', name: 'postalCode' } });
     
     // cardNumber and expiry use IMask mock
     fireEvent.change(screen.getByLabelText('Card Number'), { target: { value: '4242 4242 4242 4242', name: 'cardNumber' } });
