@@ -1,0 +1,49 @@
+# "org" ensures this Service is used with the correct Serverless Framework Access Key.
+org: checka
+service: eshop-api
+
+provider:
+  name: aws
+  runtime: nodejs20.x
+  region: us-east-1
+  stage: ${opt:stage, 'dev'}
+  timeout: 30
+  environment:
+    DB_HOST: ${env:DB_HOST}
+    DB_PORT: ${env:DB_PORT}
+    DB_USERNAME: ${env:DB_USERNAME}
+    DB_PASSWORD: ${env:DB_PASSWORD}
+    DB_NAME: ${env:DB_NAME}
+    DB_SSL: 'false'
+    PORT: ${env:PORT}
+    PAYMENT_GATEWAY_PUBLIC_KEY: ${env:PAYMENT_GATEWAY_PUBLIC_KEY}
+    PAYMENT_GATEWAY_PRIVATE_KEY: ${env:PAYMENT_GATEWAY_PRIVATE_KEY}
+    PAYMENT_GATEWAY_INTEGRITY_SECRET: ${env:PAYMENT_GATEWAY_INTEGRITY_SECRET}
+    PAYMENT_GATEWAY_API_URL: ${env:PAYMENT_GATEWAY_API_URL}
+    FRONTEND_URL: ${env:FRONTEND_URL}
+
+build:
+  esbuild: false
+
+functions:
+  main:
+    handler: dist/lambda.handler
+    events:
+      - http:
+          path: /
+          method: any
+      - http:
+          path: '{proxy+}'
+          method: any
+
+plugins:
+  - serverless-offline
+
+package:
+  patterns:
+    - '!src/**'
+    - '!test/**'
+    - '!coverage/**'
+    - '!.git/**'
+    - 'dist/**'
+    - 'node_modules/**'

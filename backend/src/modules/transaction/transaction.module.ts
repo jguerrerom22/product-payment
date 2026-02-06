@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { ConfigModule } from '@nestjs/config';
+import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TransactionController } from './infrastructure/transaction.controller';
 import { Transaction } from './domain/transaction.entity';
 import { TypeOrmTransactionRepository } from './infrastructure/typeorm-transaction.repository';
@@ -14,10 +14,10 @@ import { CustomerModule } from '../customer/customer.module';
 
 @Module({
   imports: [
+    ConfigModule,
     TypeOrmModule.forFeature([Transaction]),
     ProductModule,
     CustomerModule,
-    ConfigModule,
   ],
   controllers: [TransactionController],
   providers: [
@@ -29,7 +29,10 @@ import { CustomerModule } from '../customer/customer.module';
     CheckTransactionStatusUseCase,
     {
       provide: PAYMENT_GATEWAY_PROVIDER,
-      useClass: WompiAdapter,
+      useFactory: (configService: ConfigService) => {
+        return new WompiAdapter(configService);
+      },
+      inject: [ConfigService],
     },
   ],
   exports: [TRANSACTION_REPOSITORY], 

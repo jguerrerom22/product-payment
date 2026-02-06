@@ -1,11 +1,11 @@
 import { Entity, PrimaryGeneratedColumn, Column } from 'typeorm';
 
-@Entity('products')
+@Entity('product')
 export class Product {
   @PrimaryGeneratedColumn('increment')
   id: number;
 
-  @Column({ length: 100 })
+  @Column('varchar', { length: 100 })
   name: string;
 
   @Column('text')

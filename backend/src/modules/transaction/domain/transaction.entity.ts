@@ -1,4 +1,11 @@
-import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, ManyToOne, JoinColumn } from 'typeorm';
+import {
+  Entity,
+  PrimaryGeneratedColumn,
+  Column,
+  CreateDateColumn,
+  ManyToOne,
+  JoinColumn,
+} from 'typeorm';
 import { Product } from '../../product/domain/product.entity';
 import { Customer } from '../../customer/domain/customer.entity';
 
@@ -9,7 +16,7 @@ export enum TransactionStatus {
   ERROR = 'ERROR',
 }
 
-@Entity('transactions')
+@Entity('transaction')
 export class Transaction {
   @PrimaryGeneratedColumn('uuid')
   id: string;
@@ -39,7 +46,7 @@ export class Transaction {
   @Column({ type: 'jsonb', nullable: true })
   payment_info: Record<string, any>;
 
-  @Column({ nullable: true })
+  @Column('varchar', { nullable: true })
   payment_gateway_id: string;
 
   @Column({ type: 'uuid', nullable: true })

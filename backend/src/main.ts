@@ -2,17 +2,19 @@ import './polyfill';
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { ValidationPipe } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import helmet from 'helmet';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
+  const configService = app.get(ConfigService);
   
   // Security Headers
   app.use(helmet());
   
   // CORS
   app.enableCors({
-    origin: process.env.FRONTEND_URL || '*',
+    origin: configService.get<string>('FRONTEND_URL') || '*',
     methods: 'GET,POST',
     credentials: true,
   });
@@ -24,6 +26,7 @@ async function bootstrap() {
     transform: true,
   }));
 
-  await app.listen(3000);
+  const port = configService.get<number>('PORT') || 3000;
+  await app.listen(port);
 }
 bootstrap();
