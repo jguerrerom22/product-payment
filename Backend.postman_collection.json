@@ -62,7 +62,7 @@
             "header": [],
             "body": {
               "mode": "raw",
-              "raw": "{\n    \"productId\": 1,\n    \"amount\": 1515000,\n    \"customerEmail\": \"customer@example.com\",\n    \"customerName\": \"John Doe\",\n    \"customerPhone\": \"3001234567\",\n    \"deliveryInfo\": {\n        \"address\": \"Calle 123 # 45-67\",\n        \"city\": \"Bogotá\",\n        \"region\": \"Cundinamarca\",\n        \"country\": \"Colombia\",\n        \"postalCode\": \"110111\",\n        \"phone\": \"3001234567\"\n    },\n    \"paymentInfo\": {\n        \"number\": \"4242424242424242\",\n        \"cvc\": \"123\",\n        \"exp_month\": \"12\",\n        \"exp_year\": \"25\",\n        \"card_holder\": \"JOHN DOE\",\n        \"installments\": 1\n    }\n}",
+              "raw": "{\n    \"productId\": 1,\n    \"amount\": 1515000,\n    \"customerEmail\": \"customer@example.com\",\n    \"customerName\": \"John Doe\",\n    \"customerPhone\": \"3001234567\",\n    \"deliveryInfo\": {\n        \"address\": \"Calle 123 # 45-67\",\n        \"city\": \"Bogotá\",\n        \"region\": \"Cundinamarca\",\n        \"country\": \"Colombia\",\n        \"postalCode\": \"110111\"\n    },\n    \"paymentInfo\": {\n        \"number\": \"4242424242424242\",\n        \"cvc\": \"123\",\n        \"exp_month\": \"12\",\n        \"exp_year\": \"25\",\n        \"card_holder\": \"JOHN DOE\",\n        \"installments\": 1\n    }\n}",
               "options": {
                 "raw": {
                   "language": "json"

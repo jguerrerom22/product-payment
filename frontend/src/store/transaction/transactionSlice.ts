@@ -38,7 +38,6 @@ export const createTransaction = createAsyncThunk(
       region: string;
       country: string;
       postalCode: string;
-      phone: string;
     };
     paymentInfo: {
       number: string;
