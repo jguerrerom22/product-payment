@@ -1,13 +1,79 @@
 import { BadRequestException, Inject, Injectable, NotFoundException } from '@nestjs/common';
+import { Customer } from '../../customer/domain/customer.entity';
+import { CUSTOMER_REPOSITORY, CustomerRepository } from '../../customer/domain/customer.repository';
+import { CreateDeliveryUseCase } from '../../delivery/application/create-delivery.use-case';
+import { PAYMENT_GATEWAY_PROVIDER, PaymentGateway } from '../../payment/domain/payment-gateway.interface';
+import { PRODUCT_REPOSITORY, ProductRepository } from '../../product/domain/product.repository';
 import { Transaction, TransactionStatus } from '../domain/transaction.entity';
 import { TRANSACTION_REPOSITORY, TransactionRepository } from '../domain/transaction.repository';
-import { PRODUCT_REPOSITORY, ProductRepository } from '../../product/domain/product.repository';
-import { PaymentGateway, PAYMENT_GATEWAY_PROVIDER } from '../../payment/domain/payment-gateway.interface';
-import { CUSTOMER_REPOSITORY, CustomerRepository } from '../../customer/domain/customer.repository';
-import { Customer } from '../../customer/domain/customer.entity';
-import { CreateDeliveryUseCase } from '../../delivery/application/create-delivery.use-case';
 
-import { IsNumber, IsObject, IsNotEmpty, Min, IsInt } from 'class-validator';
+import { Type } from 'class-transformer';
+import {
+  IsEmail,
+  IsInt,
+  IsNotEmpty,
+  IsNumber,
+  IsObject,
+  IsString,
+  Length,
+  Matches,
+  Min,
+  ValidateNested
+} from 'class-validator';
+
+export class DeliveryInfoDto {
+  @IsString()
+  @IsNotEmpty()
+  address: string;
+
+  @IsString()
+  @IsNotEmpty()
+  city: string;
+
+  @IsString()
+  @IsNotEmpty()
+  region: string;
+
+  @IsString()
+  @IsNotEmpty()
+  country: string;
+
+  @IsString()
+  @IsNotEmpty()
+  @Length(3, 10)
+  postalCode: string;
+}
+
+export class PaymentInfoDto {
+  @IsString()
+  @IsNotEmpty()
+  @Length(13, 19) // Basic length check for card numbers
+  number: string;
+
+  @IsString()
+  @IsNotEmpty()
+  @Length(3, 4)
+  cvc: string;
+
+  @IsString()
+  @IsNotEmpty()
+  @Matches(/^(0[1-9]|1[0-2])$/, { message: 'exp_month must be 01-12' })
+  exp_month: string;
+
+  @IsString()
+  @IsNotEmpty()
+  @Matches(/^\d{2}$/, { message: 'exp_year must be 2 digits' })
+  exp_year: string;
+
+  @IsString()
+  @IsNotEmpty()
+  @Length(5, 150)
+  card_holder: string;
+
+  @IsInt()
+  @Min(1)
+  installments: number;
+}
 
 export class CreateTransactionDto {
   @IsInt()
@@ -20,36 +86,28 @@ export class CreateTransactionDto {
   amount: number;
 
   @IsObject()
-  @IsNotEmpty()
-  deliveryInfo: {
-    address: string;
-    city: string;
-    region: string;
-    country: string;
-    postalCode: string;
-    [key: string]: any;
-  };
+  @ValidateNested()
+  @Type(() => DeliveryInfoDto)
+  deliveryInfo: DeliveryInfoDto;
 
+  @IsEmail()
   @IsNotEmpty()
   customerEmail: string;
 
+  @IsString()
   @IsNotEmpty()
+  @Length(2, 150)
   customerName: string;
 
+  @IsString()
   @IsNotEmpty()
+  @Length(7, 20)
   customerPhone: string;
 
   @IsObject()
-  @IsNotEmpty()
-  paymentInfo: {
-    number: string;
-    cvc: string;
-    exp_month: string;
-    exp_year: string;
-    card_holder: string;
-    installments: number;
-    [key: string]: any;
-  };
+  @ValidateNested()
+  @Type(() => PaymentInfoDto)
+  paymentInfo: PaymentInfoDto;
 }
 
 @Injectable()
