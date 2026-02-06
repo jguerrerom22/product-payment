@@ -7,6 +7,8 @@ import { Transaction } from './modules/transaction/domain/transaction.entity';
 import { TransactionModule } from './modules/transaction/transaction.module';
 import { Customer } from './modules/customer/domain/customer.entity';
 import { CustomerModule } from './modules/customer/customer.module';
+import { Delivery } from './modules/delivery/domain/delivery.entity';
+import { DeliveryModule } from './modules/delivery/delivery.module';
 import { AppController } from './app.controller';
 
 @Module({
@@ -23,7 +25,7 @@ import { AppController } from './app.controller';
         username: configService.get<string>('DB_USERNAME'),
         password: configService.get<string>('DB_PASSWORD'),
         database: configService.get<string>('DB_NAME'),
-        entities: [Product, Transaction, Customer],
+        entities: [Product, Transaction, Customer, Delivery],
         synchronize: false,
         migrationsRun: true,
         migrations: [__dirname + '/migrations/*.js'],
@@ -31,17 +33,18 @@ import { AppController } from './app.controller';
           configService.get<string>('DB_SSL') === 'true'
             ? { rejectUnauthorized: false }
             : false,
-        extra: {
+        extra: configService.get<string>('DB_SSL') === 'true' ? {
           ssl: {
             rejectUnauthorized: false,
           },
-        },
+        } : {},
       }),
       inject: [ConfigService],
     }),
     ProductModule,
     TransactionModule,
     CustomerModule,
+    DeliveryModule,
   ],
   controllers: [AppController],
 })

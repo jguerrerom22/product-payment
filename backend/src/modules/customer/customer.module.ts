@@ -4,8 +4,11 @@ import { Customer } from './domain/customer.entity';
 import { CUSTOMER_REPOSITORY } from './domain/customer.repository';
 import { TypeOrmCustomerRepository } from './infrastructure/typeorm-customer.repository';
 
+import { CustomerController } from './infrastructure/customer.controller';
+
 @Module({
   imports: [TypeOrmModule.forFeature([Customer])],
+  controllers: [CustomerController],
   providers: [
     {
       provide: CUSTOMER_REPOSITORY,

@@ -222,6 +222,9 @@ interface PaymentFormData {
   fullName: string;
   address: string;
   city: string;
+  region: string;
+  country: string;
+  postalCode: string;
   phone: string;
 }
 
@@ -247,6 +250,9 @@ const PaymentModal: React.FC<PaymentModalProps> = ({ product, onClose }) => {
       fullName: '',
       address: '',
       city: '',
+      region: '',
+      country: '',
+      postalCode: '',
       phone: ''
     };
     if (savedData) {
@@ -311,6 +317,9 @@ const PaymentModal: React.FC<PaymentModalProps> = ({ product, onClose }) => {
     if (!formData.phone) newErrors.phone = 'Required';
     if (!formData.address) newErrors.address = 'Required';
     if (!formData.city) newErrors.city = 'Required';
+    if (!formData.region) newErrors.region = 'Required';
+    if (!formData.country) newErrors.country = 'Required';
+    if (!formData.postalCode) newErrors.postalCode = 'Required';
     
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
@@ -334,6 +343,9 @@ const PaymentModal: React.FC<PaymentModalProps> = ({ product, onClose }) => {
       deliveryInfo: {
         address: formData.address,
         city: formData.city,
+        region: formData.region,
+        country: formData.country,
+        postalCode: formData.postalCode,
         phone: formData.phone
       },
       paymentInfo: {
@@ -494,8 +506,48 @@ const PaymentModal: React.FC<PaymentModalProps> = ({ product, onClose }) => {
                     value={formData.city} 
                     onChange={handleChange}
                     onFocus={handleInputFocus}
+                    placeholder="Bogotá"
                   />
                   {errors.city && <ErrorText>{errors.city}</ErrorText>}
+                </FormGroup>
+                <FormGroup style={{ flex: 1 }}>
+                  <Label htmlFor="region">Region/State</Label>
+                  <Input 
+                    id="region"
+                    name="region" 
+                    value={formData.region} 
+                    onChange={handleChange}
+                    onFocus={handleInputFocus}
+                    placeholder="Cundinamarca"
+                  />
+                  {errors.region && <ErrorText>{errors.region}</ErrorText>}
+                </FormGroup>
+              </Row>
+
+              <Row>
+                <FormGroup style={{ flex: 1 }}>
+                  <Label htmlFor="country">Country</Label>
+                  <Input 
+                    id="country"
+                    name="country" 
+                    value={formData.country} 
+                    onChange={handleChange}
+                    onFocus={handleInputFocus}
+                    placeholder="Colombia"
+                  />
+                  {errors.country && <ErrorText>{errors.country}</ErrorText>}
+                </FormGroup>
+                <FormGroup style={{ flex: 1 }}>
+                  <Label htmlFor="postalCode">Postal Code</Label>
+                  <Input 
+                    id="postalCode"
+                    name="postalCode" 
+                    value={formData.postalCode} 
+                    onChange={handleChange}
+                    onFocus={handleInputFocus}
+                    placeholder="110111"
+                  />
+                  {errors.postalCode && <ErrorText>{errors.postalCode}</ErrorText>}
                 </FormGroup>
               </Row>
 

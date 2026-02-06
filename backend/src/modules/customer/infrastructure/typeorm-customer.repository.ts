@@ -22,4 +22,8 @@ export class TypeOrmCustomerRepository implements CustomerRepository {
   async findById(id: string): Promise<Customer | null> {
     return this.repository.findOne({ where: { id } });
   }
+
+  async findAll(): Promise<Customer[]> {
+    return this.repository.find({ order: { full_name: 'ASC' } });
+  }
 }

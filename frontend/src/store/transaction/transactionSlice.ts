@@ -23,7 +23,14 @@ export const createTransaction = createAsyncThunk(
     customerEmail: string;
     customerName: string;
     customerPhone: string;
-    deliveryInfo: any;
+    deliveryInfo: {
+      address: string;
+      city: string;
+      region: string;
+      country: string;
+      postalCode: string;
+      phone: string;
+    };
     paymentInfo: {
       number: string;
       cvc: string;

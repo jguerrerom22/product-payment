@@ -11,6 +11,7 @@ import { PAYMENT_GATEWAY_PROVIDER } from '../payment/domain/payment-gateway.inte
 import { WompiAdapter } from '../payment/infrastructure/wompi.adapter';
 import { ProductModule } from '../product/product.module'; // To access ProductRepository
 import { CustomerModule } from '../customer/customer.module';
+import { DeliveryModule } from '../delivery/delivery.module';
 
 @Module({
   imports: [
@@ -18,6 +19,7 @@ import { CustomerModule } from '../customer/customer.module';
     TypeOrmModule.forFeature([Transaction]),
     ProductModule,
     CustomerModule,
+    DeliveryModule,
   ],
   controllers: [TransactionController],
   providers: [
