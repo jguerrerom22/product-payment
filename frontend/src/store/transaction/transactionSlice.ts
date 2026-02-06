@@ -8,11 +8,20 @@ export interface TransactionState {
   transactionResult: any | null;
 }
 
+const getPersisted = (key: string) => {
+  const data = localStorage.getItem(key);
+  try {
+    return data ? JSON.parse(data) : null;
+  } catch {
+    return data;
+  }
+};
+
 const initialState: TransactionState = {
-  currentTransactionId: null,
+  currentTransactionId: localStorage.getItem('transaction_id'),
   status: 'idle',
   error: null,
-  transactionResult: null,
+  transactionResult: getPersisted('transaction_result'),
 };
 
 export const createTransaction = createAsyncThunk(
@@ -63,6 +72,22 @@ const transactionSlice = createSlice({
       state.error = null;
       state.transactionResult = null;
     },
+    setTransactionId: (state, action) => {
+      state.currentTransactionId = action.payload;
+      if (action.payload) {
+        localStorage.setItem('transaction_id', action.payload);
+      } else {
+        localStorage.removeItem('transaction_id');
+      }
+    },
+    setTransactionResult: (state, action) => {
+      state.transactionResult = action.payload;
+      if (action.payload) {
+        localStorage.setItem('transaction_result', JSON.stringify(action.payload));
+      } else {
+        localStorage.removeItem('transaction_result');
+      }
+    }
   },
   extraReducers: (builder) => {
     builder
@@ -73,6 +98,8 @@ const transactionSlice = createSlice({
         state.status = 'succeeded';
         state.currentTransactionId = action.payload.id;
         state.transactionResult = action.payload;
+        localStorage.setItem('transaction_id', action.payload.id);
+        localStorage.setItem('transaction_result', JSON.stringify(action.payload));
       })
       .addCase(createTransaction.rejected, (state, action) => {
         state.status = 'failed';
@@ -84,6 +111,7 @@ const transactionSlice = createSlice({
       .addCase(checkTransactionStatus.fulfilled, (state, action) => {
         state.status = 'succeeded';
         state.transactionResult = action.payload;
+        localStorage.setItem('transaction_result', JSON.stringify(action.payload));
       })
       .addCase(checkTransactionStatus.rejected, (state, action) => {
         state.status = 'failed';
@@ -92,5 +120,5 @@ const transactionSlice = createSlice({
   },
 });
 
-export const { resetTransaction } = transactionSlice.actions;
+export const { resetTransaction, setTransactionId, setTransactionResult } = transactionSlice.actions;
 export default transactionSlice.reducer;

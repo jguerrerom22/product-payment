@@ -314,12 +314,22 @@ const PaymentModal: React.FC<PaymentModalProps> = ({ product, onClose }) => {
     } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
       newErrors.email = 'Invalid email';
     }
-    if (!formData.phone) newErrors.phone = 'Required';
+    if (!formData.phone) {
+      newErrors.phone = 'Required';
+    } else if (!/^\d{7,15}$/.test(formData.phone)) {
+      newErrors.phone = 'Invalid phone number (7-15 digits)';
+    }
+    
     if (!formData.address) newErrors.address = 'Required';
     if (!formData.city) newErrors.city = 'Required';
     if (!formData.region) newErrors.region = 'Required';
     if (!formData.country) newErrors.country = 'Required';
-    if (!formData.postalCode) newErrors.postalCode = 'Required';
+    
+    if (!formData.postalCode) {
+      newErrors.postalCode = 'Required';
+    } else if (formData.postalCode.length < 3 || formData.postalCode.length > 10) {
+      newErrors.postalCode = 'Postal code must be 3-10 characters';
+    }
     
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
