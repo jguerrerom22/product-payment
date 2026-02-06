@@ -1,18 +1,18 @@
 import { Entity, PrimaryGeneratedColumn, Column, OneToMany } from 'typeorm';
 import { Transaction } from '../../transaction/domain/transaction.entity';
 
-@Entity('customers')
+@Entity('customer')
 export class Customer {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @Column({ length: 150 })
+  @Column('varchar', { length: 150 })
   full_name: string;
 
-  @Column({ length: 150, unique: true })
+  @Column('varchar', { length: 150, unique: true })
   email: string;
 
-  @Column({ length: 20 })
+  @Column('varchar', { length: 20 })
   phone_number: string;
 
   @OneToMany(() => Transaction, (transaction) => transaction.customer)

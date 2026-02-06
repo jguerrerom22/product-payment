@@ -33,7 +33,9 @@ const mockProduct = {
 const createMockStore = (initialState = {}) => {
   return configureStore({
     reducer: {
+      // @ts-ignore
       transaction: transactionReducer,
+      // @ts-ignore
       products: productReducer,
     },
     preloadedState: {

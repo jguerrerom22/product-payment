@@ -28,7 +28,9 @@ const mockProducts = [
 const createMockStore = (status: 'idle' | 'loading' | 'succeeded' | 'failed' = 'succeeded', items = mockProducts) => {
   return configureStore({
     reducer: {
+      // @ts-ignore
       products: productReducer,
+      // @ts-ignore
       transaction: (state = { status: 'idle' }) => state, // dummy
     },
     preloadedState: {

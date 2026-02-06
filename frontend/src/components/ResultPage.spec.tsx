@@ -6,14 +6,16 @@ import { BrowserRouter } from 'react-router-dom';
 import ResultPage from './ResultPage';
 import transactionReducer from '../store/transaction/transactionSlice';
 
-const createMockStore = (status = 'succeeded', transactionResult = null, error = null) => {
+const createMockStore = (status = 'succeeded', transactionResult = null, error: string | null = null) => {
   return configureStore({
     reducer: {
+      // @ts-ignore
       transaction: transactionReducer,
+      // @ts-ignore
       products: (state = { status: 'idle' }) => state, // dummy
     },
     preloadedState: {
-      transaction: { status, transactionResult, error }
+      transaction: { status, transactionResult, error, currentTransactionId: null }
     } as any
   });
 };

@@ -24,7 +24,18 @@ import { AppController } from './app.controller';
         password: configService.get<string>('DB_PASSWORD'),
         database: configService.get<string>('DB_NAME'),
         entities: [Product, Transaction, Customer],
-        synchronize: true, // Only for dev/test environments
+        synchronize: false,
+        migrationsRun: true,
+        migrations: [__dirname + '/migrations/*.js'],
+        ssl:
+          configService.get<string>('DB_SSL') === 'true'
+            ? { rejectUnauthorized: false }
+            : false,
+        extra: {
+          ssl: {
+            rejectUnauthorized: false,
+          },
+        },
       }),
       inject: [ConfigService],
     }),
