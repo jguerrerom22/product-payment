@@ -356,7 +356,6 @@ const PaymentModal: React.FC<PaymentModalProps> = ({ product, onClose }) => {
         region: formData.region,
         country: formData.country,
         postalCode: formData.postalCode,
-        phone: formData.phone
       },
       paymentInfo: {
         number: formData.cardNumber.replace(/\s/g, ''),
