@@ -144,7 +144,7 @@ A Postman collection is available to test all endpoints:
 ## 🔑 Environment Variables
 
 Required variables in `.env`:
-- `DB_HOST`, `DB_PORT`, `DB_USERNAME`, `DB_PASSWORD`, `DB_NAME`
+- `DB_HOST`, `DB_PORT`, `DB_USERNAME`, `DB_PASSWORD`, `DB_NAME`, `DB_SSL`
 - `PAYMENT_GATEWAY_PUBLIC_KEY`
 - `PAYMENT_GATEWAY_PRIVATE_KEY`
 - `PAYMENT_GATEWAY_INTEGRITY_SECRET`
